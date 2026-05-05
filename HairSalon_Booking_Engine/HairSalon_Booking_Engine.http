@@ -1,0 +1,6 @@
+@HairSalon_Booking_Engine_HostAddress = http://localhost:5207
+
+GET {{HairSalon_Booking_Engine_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
