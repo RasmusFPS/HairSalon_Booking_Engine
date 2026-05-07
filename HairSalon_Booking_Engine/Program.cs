@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+
 namespace HairSalon_Booking_Engine
 {
     public class Program
@@ -13,6 +16,14 @@ namespace HairSalon_Booking_Engine
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+            builder.Services.AddDbContext<HairSalonDBContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+            });
 
             var app = builder.Build();
 
