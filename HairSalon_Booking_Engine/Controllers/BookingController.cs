@@ -53,6 +53,19 @@ namespace HairSalon_Booking_Engine.Controllers
 
             return Ok(newBooking);
         }
-        
+
+        [HttpDelete("{id}", Name = "DeleteBookingById")]
+        public async Task<ActionResult> DeleteByID(int id)
+        {
+            var IdToDelete = await _ctx.Bookings
+                .Where(b => b.Id == id)
+                .ExecuteDeleteAsync();
+
+            if (IdToDelete == 0)
+            {
+                return NotFound($"No booking with this Id{id}");
+            }
+            return Ok(IdToDelete);
+        }
     }
 }
