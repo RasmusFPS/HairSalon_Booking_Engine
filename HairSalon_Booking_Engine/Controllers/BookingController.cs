@@ -18,7 +18,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpGet(Name = "GetAllBookings")]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetAll()
+        public async Task<ActionResult<IEnumerable<GetBookingRequest>>> GetAll()
         {
             return Ok(await _ctx.Bookings
                 .AsNoTracking()
@@ -26,7 +26,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpGet("GetById/{id}", Name = "GetBookingById")]
-        public async Task<ActionResult<Booking?>> GetById(int id)
+        public async Task<ActionResult<GetBookingRequest?>> GetById(int id)
         {
             var booking = await _ctx.Bookings.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
             if (booking is null)
