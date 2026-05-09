@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HairSalon_Booking_Engine.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Controllers
@@ -16,7 +17,7 @@ namespace HairSalon_Booking_Engine.Controllers
 
 
         [HttpDelete("{id}", Name = "DeleteCustomerById")]
-        public async Task<ActionResult> DeleteByID(int id)
+        public async Task<ActionResult<DeleteRequest>> DeleteByID(int id)
         {
             var IdToDelete = await _ctx.Customers
                 .Where(c => c.Id == id)

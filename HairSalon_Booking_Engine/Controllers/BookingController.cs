@@ -55,7 +55,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpDelete("{id}", Name = "DeleteBookingById")]
-        public async Task<ActionResult> DeleteByID(int id)
+        public async Task<ActionResult<DeleteRequest>> DeleteByID(int id)
         {
             var IdToDelete = await _ctx.Bookings
                 .Where(b => b.Id == id)
