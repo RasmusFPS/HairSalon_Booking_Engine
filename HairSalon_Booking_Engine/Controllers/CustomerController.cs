@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HairSalon_Booking_Engine.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Controllers
@@ -14,6 +15,43 @@ namespace HairSalon_Booking_Engine.Controllers
             _ctx = ctx;
         }
 
+        [HttpPost(Name = "CreateCustomer")]
+        public async Task<ActionResult> Create() // add DTO here
+        {
+            var customer = new Customer
+            {
+
+            };
+
+            await _ctx.Customers.AddAsync(customer);
+            await _ctx.SaveChangesAsync();
+
+            return Created();
+        }
+
+        [HttpPut(Name = "UpdateCustomer")]
+        public async Task<ActionResult> Update(int id) // add DTO here
+        {
+            var customer = await _ctx.Customers
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer is null)
+            {
+                return BadRequest($"Ingen kund hittades med ID: {id}");
+            }
+
+            // set values based on DTO
+            customer.FirstName = "tempFirstName";
+            customer.LastName = "tempLastName";
+
+            await _ctx.SaveChangesAsync();
+
+            var result = await _ctx.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            return Ok(result);
+        }
 
         [HttpDelete("{id}", Name = "DeleteCustomerById")]
         public async Task<IActionResult> DeleteByID(int id)
