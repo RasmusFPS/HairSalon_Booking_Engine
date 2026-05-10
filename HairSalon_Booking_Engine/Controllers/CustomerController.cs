@@ -40,21 +40,24 @@ namespace HairSalon_Booking_Engine.Controllers
         //}
 
         [HttpPost(Name = "CreateCustomer")]
-        public async Task<ActionResult> Create() // add DTO here
+        public async Task<ActionResult> Create(CreateCustomerRequest request)
         {
             var customer = new Customer
             {
-
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Phone = request.Phone,
+                Email = request.Email
             };
 
             await _ctx.Customers.AddAsync(customer);
             await _ctx.SaveChangesAsync();
 
-            return Created();
+            return Created(); // change to CreatedAtAction when GetCustomerById is added
         }
 
         [HttpPut(Name = "UpdateCustomer")]
-        public async Task<ActionResult> Update(int id) // add DTO here
+        public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
         {
             var customer = await _ctx.Customers
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -64,14 +67,23 @@ namespace HairSalon_Booking_Engine.Controllers
                 return BadRequest($"Ingen kund hittades med ID: {id}");
             }
 
-            // set values based on DTO
-            customer.FirstName = "tempFirstName";
-            customer.LastName = "tempLastName";
+            customer.FirstName = request.FirstName;
+            customer.LastName = request.LastName;
+            customer.Phone = request.Phone;
+            customer.Email = request.Email;
 
             await _ctx.SaveChangesAsync();
 
             var result = await _ctx.Customers
                 .AsNoTracking()
+                .Select(c => new GetCustomerResponse
+                {
+                    Id = c.Id,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Phone = c.Phone,
+                    Email = c.Email
+                })
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             return Ok(result);
