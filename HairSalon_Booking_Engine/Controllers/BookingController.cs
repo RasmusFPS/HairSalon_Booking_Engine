@@ -22,13 +22,19 @@ namespace HairSalon_Booking_Engine.Controllers
         {
             return Ok(await _ctx.Bookings
                 .AsNoTracking()
+                .Select(b => new GetBookingRequest(b.BookingDate, b.BookedDate, b.StylistId, b.CustomerId))
                 .ToListAsync());
         }
 
         [HttpGet("GetById/{id}", Name = "GetBookingById")]
         public async Task<ActionResult<GetBookingRequest?>> GetById(int id)
         {
-            var booking = await _ctx.Bookings.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
+            var booking = await _ctx.Bookings
+                .AsNoTracking()
+                .Where(b => b.Id == id)
+                .Select(b => new GetBookingRequest(b.BookingDate, b.BookedDate, b.StylistId, b.CustomerId))
+                .FirstOrDefaultAsync();
+
             if (booking is null)
             {
                 return NotFound($"The booking with an id of {id} could not be found.");
