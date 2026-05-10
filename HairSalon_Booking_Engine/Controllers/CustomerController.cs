@@ -16,7 +16,7 @@ namespace HairSalon_Booking_Engine.Controllers
 
 
         [HttpDelete("{id}", Name = "DeleteCustomerById")]
-        public async Task<ActionResult> DeleteByID(int id)
+        public async Task<IActionResult> DeleteByID(int id)
         {
             var IdToDelete = await _ctx.Customers
                 .Where(c => c.Id == id)
