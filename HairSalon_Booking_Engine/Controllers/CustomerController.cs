@@ -31,6 +31,9 @@ namespace HairSalon_Booking_Engine.Controllers
                 }).ToListAsync());
         }
 
+        //Va tvungen att skriva denna kommentar för att få möjlighet att göra en ny COMMIT med nytt innehåll.
+
+
         //[HttpGet(Name = "GetCustomerById")]
 
         //public async Task<ActionResult<GetCustomerResponse>> GetCustomerById()
