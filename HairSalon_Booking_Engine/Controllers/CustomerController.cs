@@ -1,6 +1,6 @@
-﻿using HairSalon_Booking_Engine.Models.DTOs;
+﻿using HairSalon_Booking_Engine.Models;
+using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
-﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Controllers
@@ -32,9 +32,6 @@ namespace HairSalon_Booking_Engine.Controllers
                 }).ToListAsync());
         }
 
-        //Va tvungen att skriva denna kommentar för att få möjlighet att göra en ny COMMIT med nytt innehåll.
-
-
         //[HttpGet(Name = "GetCustomerById")]
 
         //public async Task<ActionResult<GetCustomerResponse>> GetCustomerById()
@@ -42,8 +39,55 @@ namespace HairSalon_Booking_Engine.Controllers
         //    var customer
         //}
 
+        [HttpPost(Name = "CreateCustomer")]
+        public async Task<ActionResult> Create(CreateCustomerRequest request)
+        {
+            var customer = new Customer
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Phone = request.Phone,
+                Email = request.Email
+            };
 
+            await _ctx.Customers.AddAsync(customer);
+            await _ctx.SaveChangesAsync();
 
+            return Created(); // change to CreatedAtAction when GetCustomerById is added
+        }
+
+        [HttpPut(Name = "UpdateCustomer")]
+        public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
+        {
+            var customer = await _ctx.Customers
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer is null)
+            {
+                return BadRequest($"Ingen kund hittades med ID: {id}");
+            }
+
+            customer.FirstName = request.FirstName;
+            customer.LastName = request.LastName;
+            customer.Phone = request.Phone;
+            customer.Email = request.Email;
+
+            await _ctx.SaveChangesAsync();
+
+            var result = await _ctx.Customers
+                .AsNoTracking()
+                .Select(c => new GetCustomerResponse
+                {
+                    Id = c.Id,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Phone = c.Phone,
+                    Email = c.Email
+                })
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            return Ok(result);
+        }
 
         [HttpDelete("{id}", Name = "DeleteCustomerById")]
         public async Task<IActionResult> DeleteByID(int id)
