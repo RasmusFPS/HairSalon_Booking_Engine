@@ -43,6 +43,35 @@ namespace HairSalon_Booking_Engine
             );
 
             // ----------------------------------------------------------------
+            // Schedules
+            // ----------------------------------------------------------------
+            modelBuilder.Entity<Schedule>().HasData(
+
+                // Sofia Andersson (StylistId = 1) — works 09:00–17:00
+                new Schedule { Id = 1, StylistId = 1, StartTime = new DateTime(2025, 5, 12, 9, 0, 0), EndTime = new DateTime(2025, 5, 12, 10, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 2, StylistId = 1, StartTime = new DateTime(2025, 5, 12, 10, 0, 0), EndTime = new DateTime(2025, 5, 12, 11, 30, 0), Available = false, Notes = "Booked – Emma Johansson" },
+                new Schedule { Id = 3, StylistId = 1, StartTime = new DateTime(2025, 5, 12, 11, 30, 0), EndTime = new DateTime(2025, 5, 12, 17, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 4, StylistId = 1, StartTime = new DateTime(2025, 5, 15, 9, 0, 0), EndTime = new DateTime(2025, 5, 15, 11, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 5, StylistId = 1, StartTime = new DateTime(2025, 5, 15, 11, 0, 0), EndTime = new DateTime(2025, 5, 15, 14, 0, 0), Available = false, Notes = "Booked – Maja Nilsson" },
+                new Schedule { Id = 6, StylistId = 1, StartTime = new DateTime(2025, 5, 15, 14, 0, 0), EndTime = new DateTime(2025, 5, 15, 17, 0, 0), Available = true, Notes = null },
+
+                // Marcus Lindqvist (StylistId = 2) — works 09:00–17:00
+                new Schedule { Id = 7, StylistId = 2, StartTime = new DateTime(2025, 5, 14, 9, 0, 0), EndTime = new DateTime(2025, 5, 14, 13, 30, 0), Available = true, Notes = null },
+                new Schedule { Id = 8, StylistId = 2, StartTime = new DateTime(2025, 5, 14, 13, 30, 0), EndTime = new DateTime(2025, 5, 14, 14, 0, 0), Available = false, Notes = "Booked – Lucas Berg" },
+                new Schedule { Id = 9, StylistId = 2, StartTime = new DateTime(2025, 5, 14, 14, 0, 0), EndTime = new DateTime(2025, 5, 14, 17, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 10, StylistId = 2, StartTime = new DateTime(2025, 5, 21, 9, 0, 0), EndTime = new DateTime(2025, 5, 21, 14, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 11, StylistId = 2, StartTime = new DateTime(2025, 5, 21, 14, 0, 0), EndTime = new DateTime(2025, 5, 21, 16, 15, 0), Available = false, Notes = "Booked – Astrid Eriksson" },
+                new Schedule { Id = 12, StylistId = 2, StartTime = new DateTime(2025, 5, 21, 16, 15, 0), EndTime = new DateTime(2025, 5, 21, 17, 0, 0), Available = true, Notes = null },
+
+                // Isabelle Karlsson (StylistId = 3) — works 09:00–17:00
+                new Schedule { Id = 13, StylistId = 3, StartTime = new DateTime(2025, 5, 19, 9, 0, 0), EndTime = new DateTime(2025, 5, 19, 10, 30, 0), Available = false, Notes = "Booked – Oliver Svensson" },
+                new Schedule { Id = 14, StylistId = 3, StartTime = new DateTime(2025, 5, 19, 10, 30, 0), EndTime = new DateTime(2025, 5, 19, 17, 0, 0), Available = true, Notes = null },
+                new Schedule { Id = 15, StylistId = 3, StartTime = new DateTime(2025, 5, 22, 9, 0, 0), EndTime = new DateTime(2025, 5, 22, 10, 30, 0), Available = true, Notes = null },
+                new Schedule { Id = 16, StylistId = 3, StartTime = new DateTime(2025, 5, 22, 10, 30, 0), EndTime = new DateTime(2025, 5, 22, 13, 0, 0), Available = false, Notes = "Booked – Emma Johansson" },
+                new Schedule { Id = 17, StylistId = 3, StartTime = new DateTime(2025, 5, 22, 13, 0, 0), EndTime = new DateTime(2025, 5, 22, 17, 0, 0), Available = true, Notes = null }
+            );
+
+            // ----------------------------------------------------------------
             // Products
             // ----------------------------------------------------------------
             //modelBuilder.Entity<Product>().HasData(
