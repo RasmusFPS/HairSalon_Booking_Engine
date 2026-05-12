@@ -2,7 +2,6 @@
 using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.InteropServices;
 
 namespace HairSalon_Booking_Engine.Controllers
 {
@@ -53,11 +52,34 @@ namespace HairSalon_Booking_Engine.Controllers
                 CustomerId = request.CustomerId
             };
 
-            _ctx.Bookings.Add(newBooking);
-
+            await _ctx.Bookings.AddAsync(newBooking);
             await _ctx.SaveChangesAsync();
 
             return Ok(newBooking);
+        }
+
+        [HttpPut(Name = "UpdateBooking")]
+        public async Task<ActionResult<GetBookingRequest>> Update(int id, CreateBookingRequest request)
+        {
+            var booking = await _ctx.Bookings
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (booking is null)
+            {
+                return NotFound($"Ingen bokning hittades med ID: {id}");
+            }
+
+            booking.BookingDate = request.BookingDate;
+            booking.BookedDate = request.BookingDate;
+
+            await _ctx.SaveChangesAsync();
+
+            // result behöver ändras när vi kommer på hur vi ska hantera FK
+            var result = await _ctx.Bookings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            return Ok(result);
         }
 
         [HttpDelete("{id}", Name = "DeleteBookingById")]
