@@ -21,7 +21,7 @@ namespace HairSalon_Booking_Engine.Controllers
         {
             return Ok(await _ctx.Bookings
                 .AsNoTracking()
-                .Select(b => new GetBookingRequest(b.BookingDate, b.BookedDate, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingRequest(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
                 .ToListAsync());
         }
 
@@ -31,7 +31,7 @@ namespace HairSalon_Booking_Engine.Controllers
             var booking = await _ctx.Bookings
                 .AsNoTracking()
                 .Where(b => b.Id == id)
-                .Select(b => new GetBookingRequest(b.BookingDate, b.BookedDate, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingRequest(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
                 .FirstOrDefaultAsync();
 
             if (booking is null)
@@ -46,8 +46,8 @@ namespace HairSalon_Booking_Engine.Controllers
         {
             var newBooking = new Booking
             {
-                BookedDate = request.BookingDate,
-                BookingDate = request.BookingDate,
+                CreatedAt = request.CreatedAt,
+                StartTime = request.StartTime,
                 StylistId = request.StylistId,
                 CustomerId = request.CustomerId
             };
