@@ -31,15 +31,15 @@ namespace HairSalon_Booking_Engine
             // Treatments
             // ----------------------------------------------------------------
             modelBuilder.Entity<Treatment>().HasData(
-                new Treatment { Id = 1, Name = "Women's Cut & Blowdry",  Description = "Precision cut with a full blowdry finish.",          Price = 650m,  Duration = 60  },
-                new Treatment { Id = 2, Name = "Men's Cut",              Description = "Classic scissor or clipper cut.",                    Price = 350m,  Duration = 30  },
-                new Treatment { Id = 3, Name = "Full Colour",            Description = "All-over colour with premium tint.",                 Price = 950m,  Duration = 90  },
-                new Treatment { Id = 4, Name = "Highlights – Half Head", Description = "Foil highlights on the top and crown sections.",     Price = 800m,  Duration = 75  },
-                new Treatment { Id = 5, Name = "Highlights – Full Head", Description = "Foil highlights throughout the entire head.",        Price = 1100m, Duration = 105 },
-                new Treatment { Id = 6, Name = "Balayage",               Description = "Hand-painted freehand lightening technique.",        Price = 1400m, Duration = 120 },
-                new Treatment { Id = 7, Name = "Keratin Treatment",      Description = "Smoothing treatment for frizz-free, glossy hair.",   Price = 1800m, Duration = 150 },
-                new Treatment { Id = 8, Name = "Deep Conditioning Mask", Description = "Intensive repair mask with steam application.",      Price = 250m,  Duration = 30  },
-                new Treatment { Id = 9, Name = "Children's Cut (≤12)",  Description = "Relaxed cut for children aged 12 and under.",        Price = 250m,  Duration = 30  }
+                new Treatment { Id = 1, Name = "Women's Cut & Blowdry",  Description = "Precision cut with a full blowdry finish.",          Price = 650m,  DurationMin = 60  },
+                new Treatment { Id = 2, Name = "Men's Cut",              Description = "Classic scissor or clipper cut.",                    Price = 350m,  DurationMin = 30  },
+                new Treatment { Id = 3, Name = "Full Colour",            Description = "All-over colour with premium tint.",                 Price = 950m,  DurationMin = 90  },
+                new Treatment { Id = 4, Name = "Highlights – Half Head", Description = "Foil highlights on the top and crown sections.",     Price = 800m,  DurationMin = 75  },
+                new Treatment { Id = 5, Name = "Highlights – Full Head", Description = "Foil highlights throughout the entire head.",        Price = 1100m, DurationMin = 105 },
+                new Treatment { Id = 6, Name = "Balayage",               Description = "Hand-painted freehand lightening technique.",        Price = 1400m, DurationMin = 120 },
+                new Treatment { Id = 7, Name = "Keratin Treatment",      Description = "Smoothing treatment for frizz-free, glossy hair.",   Price = 1800m, DurationMin = 150 },
+                new Treatment { Id = 8, Name = "Deep Conditioning Mask", Description = "Intensive repair mask with steam application.",      Price = 250m,  DurationMin = 30  },
+                new Treatment { Id = 9, Name = "Children's Cut (≤12)",  Description = "Relaxed cut for children aged 12 and under.",        Price = 250m,   DurationMin = 30  }
             );
 
             // ----------------------------------------------------------------
@@ -61,12 +61,12 @@ namespace HairSalon_Booking_Engine
             // ----------------------------------------------------------------
             modelBuilder.Entity<Booking>().HasData(
                 // BookedDate = when the appointment was made; BookingDate = when they come in
-                new Booking { Id = 1, BookedDate = new DateTime(2025, 5, 1),  BookingDate = new DateTime(2025, 5, 12, 10, 0, 0), StylistId = 1, CustomerId = 1 },
-                new Booking { Id = 2, BookedDate = new DateTime(2025, 5, 3),  BookingDate = new DateTime(2025, 5, 14, 13, 30, 0), StylistId = 2, CustomerId = 2 },
-                new Booking { Id = 3, BookedDate = new DateTime(2025, 5, 5),  BookingDate = new DateTime(2025, 5, 15, 11, 0, 0), StylistId = 1, CustomerId = 3 },
-                new Booking { Id = 4, BookedDate = new DateTime(2025, 5, 6),  BookingDate = new DateTime(2025, 5, 19, 9, 0, 0),  StylistId = 3, CustomerId = 4 },
-                new Booking { Id = 5, BookedDate = new DateTime(2025, 5, 8),  BookingDate = new DateTime(2025, 5, 21, 14, 0, 0), StylistId = 2, CustomerId = 5 },
-                new Booking { Id = 6, BookedDate = new DateTime(2025, 5, 10), BookingDate = new DateTime(2025, 5, 22, 10, 30, 0), StylistId = 3, CustomerId = 1 }
+                new Booking { Id = 1, CreatedAt = new DateTime(2025, 5, 1),  StartTime = new DateTime(2025, 5, 12, 10, 0, 0), StylistId = 1, CustomerId = 1 },
+                new Booking { Id = 2, CreatedAt = new DateTime(2025, 5, 3),  StartTime = new DateTime(2025, 5, 14, 13, 30, 0), StylistId = 2, CustomerId = 2 },
+                new Booking { Id = 3, CreatedAt = new DateTime(2025, 5, 5),  StartTime = new DateTime(2025, 5, 15, 11, 0, 0), StylistId = 1, CustomerId = 3 },
+                new Booking { Id = 4, CreatedAt = new DateTime(2025, 5, 6),  StartTime = new DateTime(2025, 5, 19, 9, 0, 0),  StylistId = 3, CustomerId = 4 },
+                new Booking { Id = 5, CreatedAt = new DateTime(2025, 5, 8),  StartTime = new DateTime(2025, 5, 21, 14, 0, 0), StylistId = 2, CustomerId = 5 },
+                new Booking { Id = 6, CreatedAt = new DateTime(2025, 5, 10), StartTime = new DateTime(2025, 5, 22, 10, 30, 0), StylistId = 3, CustomerId = 1 }
             );
 
             // ----------------------------------------------------------------

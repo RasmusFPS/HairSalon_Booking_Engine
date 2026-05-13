@@ -7,10 +7,10 @@ namespace HairSalon_Booking_Engine.Models
         public int Id { get; set; }
 
         [Required]
-        public DateTime BookingDate { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         [Required]
-        public DateTime BookedDate { get; set; }
+        public DateTime StartTime { get; set; }
         public int StylistId { get; set; }
         public int CustomerId { get; set; }
 

@@ -14,7 +14,7 @@ namespace HairSalon_Booking_Engine.Models
         public decimal Price { get; set; }
 
         [Required]
-        public int Duration { get; set; }
+        public int DurationMin { get; set; }
 
         // navigation properties
         public ICollection<Booking> Bookings { get; set; } = null!;
