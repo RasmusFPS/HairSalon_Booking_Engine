@@ -23,7 +23,7 @@ namespace HairSalon_Booking_Engine.Controllers
                 .AsNoTracking()
                 .Select(c => new GetCustomerResponse
                 {
-                    Id = c.Id,
+                    //Id = c.Id,
                     FirstName = c.FirstName,
                     LastName = c.LastName,
                     Phone = c.Phone,
@@ -32,12 +32,29 @@ namespace HairSalon_Booking_Engine.Controllers
                 }).ToListAsync());
         }
 
-        //[HttpGet(Name = "GetCustomerById")]
+        [HttpGet(Name = "GetCustomerById")]
 
-        //public async Task<ActionResult<GetCustomerResponse>> GetCustomerById()
-        //{
-        //    var customer
-        //}
+        public async Task<ActionResult<GetCustomerResponse>> GetCustomerById(int id)
+        {
+            var customer = await _ctx.Customers
+                .AsNoTracking()
+                .Where(c => c.Id == id)
+                .Select(c => new GetCustomerResponse
+                {
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Phone = c.Phone,
+                    Email = c.Email
+                })
+                .FirstOrDefaultAsync();
+
+            if (customer is null)
+            {
+                return NotFound($"The customer with an id of {id} could not be found.");
+            }
+            return Ok(customer);
+        }
+        
 
         [HttpPost(Name = "CreateCustomer")]
         public async Task<ActionResult> Create(CreateCustomerRequest request)
@@ -76,15 +93,16 @@ namespace HairSalon_Booking_Engine.Controllers
 
             var result = await _ctx.Customers
                 .AsNoTracking()
+                .Where(c => c.Id == id)
                 .Select(c => new GetCustomerResponse
                 {
-                    Id = c.Id,
+                    //Id = c.Id,
                     FirstName = c.FirstName,
                     LastName = c.LastName,
                     Phone = c.Phone,
                     Email = c.Email
                 })
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync();
 
             return Ok(result);
         }
