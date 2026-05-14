@@ -32,7 +32,7 @@ namespace HairSalon_Booking_Engine.Controllers
                 }).ToListAsync());
         }
 
-        [HttpGet(Name = "GetCustomerById")]
+        [HttpGet("{id}", Name = "GetCustomerById")]
 
         public async Task<ActionResult<GetCustomerResponse>> GetCustomerById(int id)
         {
