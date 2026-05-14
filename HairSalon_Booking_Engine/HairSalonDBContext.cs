@@ -13,6 +13,7 @@ namespace HairSalon_Booking_Engine
 
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         //public DbSet<Product> Products { get; set; }
         public DbSet<Stylist> Stylist { get; set; }
         //public DbSet<Transaction> Transactions { get; set; }

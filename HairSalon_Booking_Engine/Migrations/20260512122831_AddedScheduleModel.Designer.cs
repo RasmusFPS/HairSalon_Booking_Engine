@@ -4,6 +4,7 @@ using HairSalon_Booking_Engine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HairSalon_Booking_Engine.Migrations
 {
     [DbContext(typeof(HairSalonDBContext))]
-    partial class HairSalonDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260512122831_AddedScheduleModel")]
+    partial class AddedScheduleModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,14 +95,14 @@ namespace HairSalon_Booking_Engine.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("BookedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("StylistId")
                         .HasColumnType("int");
@@ -116,49 +119,49 @@ namespace HairSalon_Booking_Engine.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 12, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 1,
-                            StartTime = new DateTime(2025, 5, 12, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 1
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 14, 13, 30, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 2,
-                            StartTime = new DateTime(2025, 5, 14, 13, 30, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 2
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 15, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 3,
-                            StartTime = new DateTime(2025, 5, 15, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 1
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 19, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 4,
-                            StartTime = new DateTime(2025, 5, 19, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 3
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 21, 14, 0, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 5,
-                            StartTime = new DateTime(2025, 5, 21, 14, 0, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 2
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookedDate = new DateTime(2025, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            BookingDate = new DateTime(2025, 5, 22, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             CustomerId = 1,
-                            StartTime = new DateTime(2025, 5, 22, 10, 30, 0, 0, DateTimeKind.Unspecified),
                             StylistId = 3
                         });
                 });
@@ -457,7 +460,7 @@ namespace HairSalon_Booking_Engine.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DurationMin")
+                    b.Property<int>("Duration")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -476,7 +479,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 1,
                             Description = "Precision cut with a full blowdry finish.",
-                            DurationMin = 60,
+                            Duration = 60,
                             Name = "Women's Cut & Blowdry",
                             Price = 650m
                         },
@@ -484,7 +487,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 2,
                             Description = "Classic scissor or clipper cut.",
-                            DurationMin = 30,
+                            Duration = 30,
                             Name = "Men's Cut",
                             Price = 350m
                         },
@@ -492,7 +495,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 3,
                             Description = "All-over colour with premium tint.",
-                            DurationMin = 90,
+                            Duration = 90,
                             Name = "Full Colour",
                             Price = 950m
                         },
@@ -500,7 +503,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 4,
                             Description = "Foil highlights on the top and crown sections.",
-                            DurationMin = 75,
+                            Duration = 75,
                             Name = "Highlights – Half Head",
                             Price = 800m
                         },
@@ -508,7 +511,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 5,
                             Description = "Foil highlights throughout the entire head.",
-                            DurationMin = 105,
+                            Duration = 105,
                             Name = "Highlights – Full Head",
                             Price = 1100m
                         },
@@ -516,7 +519,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 6,
                             Description = "Hand-painted freehand lightening technique.",
-                            DurationMin = 120,
+                            Duration = 120,
                             Name = "Balayage",
                             Price = 1400m
                         },
@@ -524,7 +527,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 7,
                             Description = "Smoothing treatment for frizz-free, glossy hair.",
-                            DurationMin = 150,
+                            Duration = 150,
                             Name = "Keratin Treatment",
                             Price = 1800m
                         },
@@ -532,7 +535,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 8,
                             Description = "Intensive repair mask with steam application.",
-                            DurationMin = 30,
+                            Duration = 30,
                             Name = "Deep Conditioning Mask",
                             Price = 250m
                         },
@@ -540,7 +543,7 @@ namespace HairSalon_Booking_Engine.Migrations
                         {
                             Id = 9,
                             Description = "Relaxed cut for children aged 12 and under.",
-                            DurationMin = 30,
+                            Duration = 30,
                             Name = "Children's Cut (≤12)",
                             Price = 250m
                         });
