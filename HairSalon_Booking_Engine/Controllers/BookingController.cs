@@ -69,8 +69,8 @@ namespace HairSalon_Booking_Engine.Controllers
                 return NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            booking.BookingDate = request.BookingDate;
-            booking.BookedDate = request.BookingDate;
+            booking.CreatedAt = request.CreatedAt;
+            booking.StartTime = request.StartTime;
 
             await _ctx.SaveChangesAsync();
 
