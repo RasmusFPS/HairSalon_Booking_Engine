@@ -1,4 +1,5 @@
-﻿using HairSalon_Booking_Engine.Models;
+﻿using FluentValidation;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace HairSalon_Booking_Engine.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly HairSalonDBContext _ctx;
+        private readonly IValidator<CreateCustomerRequest> _creationValidator;
 
-        public CustomerController(HairSalonDBContext ctx)
+        public CustomerController(HairSalonDBContext ctx, IValidator<CreateCustomerRequest> creationValidator)
         {
             _ctx = ctx;
+            _creationValidator = creationValidator;
         }
 
         [HttpGet(Name = "GetCustomers")]
@@ -46,6 +49,19 @@ namespace HairSalon_Booking_Engine.Controllers
         [HttpPost(Name = "CreateCustomer")]
         public async Task<ActionResult> Create(CreateCustomerRequest request)
         {
+            var validationResult = await _creationValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(error => new
+                {
+                    field = error.PropertyName,
+                    message = error.ErrorMessage,
+                });
+
+                return BadRequest(errors);
+            }
+
             var customer = new Customer
             {
                 FirstName = request.FirstName,
@@ -57,7 +73,7 @@ namespace HairSalon_Booking_Engine.Controllers
             await _ctx.Customers.AddAsync(customer);
             await _ctx.SaveChangesAsync();
 
-            return Created(); // change to CreatedAtAction when GetCustomerById is added
+            return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, null);
         }
 
         [HttpPut(Name = "UpdateCustomer")]
