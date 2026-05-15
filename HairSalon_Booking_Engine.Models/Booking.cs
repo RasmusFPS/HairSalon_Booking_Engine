@@ -18,5 +18,20 @@ namespace HairSalon_Booking_Engine.Models
         public Stylist Stylist { get; set; } = null!;
         public Customer Customer { get; set; } = null!;
         public ICollection<Treatment> Treatments { get; set; } = null!;
+
+        [Required]
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
     }
+
+    public enum BookingStatus
+    {
+        Pending,
+        Confirmed,
+        Completed,
+        Cancelled,
+        NoShow
+    }
+
+    
 }
