@@ -21,15 +21,8 @@ namespace HairSalon_Booking_Engine.Controllers
         {
             return Ok(await _ctx.Customers
                 .AsNoTracking()
-                .Select(c => new GetCustomerResponse
-                {
-                    //Id = c.Id,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Phone = c.Phone,
-                    Email = c.Email
-
-                }).ToListAsync());
+                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
+                .ToListAsync());
         }
 
         [HttpGet("{id}", Name = "GetCustomerById")]
@@ -39,13 +32,7 @@ namespace HairSalon_Booking_Engine.Controllers
             var customer = await _ctx.Customers
                 .AsNoTracking()
                 .Where(c => c.Id == id)
-                .Select(c => new GetCustomerResponse
-                {
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Phone = c.Phone,
-                    Email = c.Email
-                })
+                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
                 .FirstOrDefaultAsync();
 
             if (customer is null)
@@ -94,14 +81,7 @@ namespace HairSalon_Booking_Engine.Controllers
             var result = await _ctx.Customers
                 .AsNoTracking()
                 .Where(c => c.Id == id)
-                .Select(c => new GetCustomerResponse
-                {
-                    //Id = c.Id,
-                    FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    Phone = c.Phone,
-                    Email = c.Email
-                })
+                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
                 .FirstOrDefaultAsync();
 
             return Ok(result);
