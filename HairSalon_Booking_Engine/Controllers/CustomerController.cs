@@ -1,8 +1,7 @@
 ﻿using FluentValidation;
-using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
+using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Controllers
 {
@@ -10,46 +9,38 @@ namespace HairSalon_Booking_Engine.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly HairSalonDBContext _ctx;
-        private readonly IValidator<CreateCustomerRequest> _creationValidator;
+        private readonly ICustomerService _customerService;
+        private readonly IValidator<CreateCustomerRequest> _createCustomerValidator;
 
-        public CustomerController(HairSalonDBContext ctx, IValidator<CreateCustomerRequest> creationValidator)
+        public CustomerController(ICustomerService customerService, IValidator<CreateCustomerRequest> createCustomerValidator)
         {
-            _ctx = ctx;
-            _creationValidator = creationValidator;
+            _customerService = customerService;
+            _createCustomerValidator = createCustomerValidator;
         }
 
         [HttpGet(Name = "GetCustomers")]
-        public async Task<ActionResult<ICollection<GetCustomerResponse>>> GetCustomers()
+        public async Task<ActionResult<ICollection<GetCustomerResponse>>> GetAll()
         {
-            return Ok(await _ctx.Customers
-                .AsNoTracking()
-                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
-                .ToListAsync());
+            return Ok(await _customerService.GetAllAsync());
         }
 
         [HttpGet("{id}", Name = "GetCustomerById")]
-
-        public async Task<ActionResult<GetCustomerResponse>> GetCustomerById(int id)
+        public async Task<ActionResult<GetCustomerResponse>> GetById(int id)
         {
-            var customer = await _ctx.Customers
-                .AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
-                .FirstOrDefaultAsync();
+            var customer = await _customerService.GetByIdAsync(id);
 
             if (customer is null)
             {
                 return NotFound($"The customer with an id of {id} could not be found.");
             }
+
             return Ok(customer);
         }
-        
 
         [HttpPost(Name = "CreateCustomer")]
         public async Task<ActionResult> Create(CreateCustomerRequest request)
         {
-            var validationResult = await _creationValidator.ValidateAsync(request);
+            var validationResult = await _createCustomerValidator.ValidateAsync(request);
 
             if (!validationResult.IsValid)
             {
@@ -62,60 +53,50 @@ namespace HairSalon_Booking_Engine.Controllers
                 return BadRequest(errors);
             }
 
-            var customer = new Customer
+            var result = await _customerService.CreateAsync(request);
+            if (!result.Success)
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Phone = request.Phone,
-                Email = request.Email
-            };
+                return BadRequest(result.ErrorMessage);
+            }
 
-            await _ctx.Customers.AddAsync(customer);
-            await _ctx.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, null);
+            return CreatedAtAction(nameof(GetById), result.Data);
         }
 
         [HttpPut(Name = "UpdateCustomer")]
         public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
         {
-            var customer = await _ctx.Customers
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var result = await _customerService.UpdateAsync(id, request);
 
-            if (customer is null)
+            if (!result.Success)
             {
-                return BadRequest($"Ingen kund hittades med ID: {id}");
+                return ToErrorResponse(result);
             }
 
-            customer.FirstName = request.FirstName;
-            customer.LastName = request.LastName;
-            customer.Phone = request.Phone;
-            customer.Email = request.Email;
-
-            await _ctx.SaveChangesAsync();
-
-            var result = await _ctx.Customers
-                .AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new GetCustomerResponse(c.FirstName, c.LastName, c.Phone, c.Email))
-                .FirstOrDefaultAsync();
-
-            return Ok(result);
+            return NoContent();
         }
 
         [HttpDelete("{id}", Name = "DeleteCustomerById")]
         public async Task<IActionResult> DeleteByID(int id)
         {
-            var IdToDelete = await _ctx.Customers
-                .Where(c => c.Id == id)
-                .ExecuteDeleteAsync();
+            var result = await _customerService.DeleteAsync(id);
 
-            if (IdToDelete == 0)
+            if (!result.Success)
             {
-                return NotFound($"No booking with this Id: {id}");
+                return ToErrorResponse(result);
             }
-            return Ok(IdToDelete);
+            
+            return NoContent();
         }
 
+        // kanske bör flyttas om den ska användas inuti BookingService också
+        private ActionResult ToErrorResponse(ServiceResult result)
+        {
+            return result.Status switch
+            {
+                ServiceResultStatus.NotFound => NotFound(result.ErrorMessage),
+                ServiceResultStatus.ValidationError => BadRequest(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage)
+            };
+        }
     }
 }
