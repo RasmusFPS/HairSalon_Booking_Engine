@@ -1,5 +1,6 @@
 using FluentValidation;
 using HairSalon_Booking_Engine.Models.DTOs.Validation;
+using HairSalon_Booking_Engine.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -9,6 +10,7 @@ namespace HairSalon_Booking_Engine
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -25,6 +27,7 @@ namespace HairSalon_Booking_Engine
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
 
+            builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerValidator>();
 
             var app = builder.Build();
