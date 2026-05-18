@@ -17,21 +17,21 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpGet(Name = "GetAllBookings")]
-        public async Task<ActionResult<IEnumerable<GetBookingRequest>>> GetAll()
+        public async Task<ActionResult<IEnumerable<GetBookingResponse>>> GetAll()
         {
             return Ok(await _ctx.Bookings
                 .AsNoTracking()
-                .Select(b => new GetBookingRequest(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
                 .ToListAsync());
         }
 
         [HttpGet("GetById/{id}", Name = "GetBookingById")]
-        public async Task<ActionResult<GetBookingRequest?>> GetById(int id)
+        public async Task<ActionResult<GetBookingResponse?>> GetById(int id)
         {
             var booking = await _ctx.Bookings
                 .AsNoTracking()
                 .Where(b => b.Id == id)
-                .Select(b => new GetBookingRequest(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
                 .FirstOrDefaultAsync();
 
             if (booking is null)
@@ -59,7 +59,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpPut(Name = "UpdateBooking")]
-        public async Task<ActionResult<GetBookingRequest>> Update(int id, CreateBookingRequest request)
+        public async Task<ActionResult<GetBookingResponse>> Update(int id, CreateBookingRequest request)
         {
             var booking = await _ctx.Bookings
                 .FirstOrDefaultAsync(b => b.Id == id);
