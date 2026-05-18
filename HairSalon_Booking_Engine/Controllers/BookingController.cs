@@ -1,5 +1,6 @@
 ﻿using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
+using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,30 +10,23 @@ namespace HairSalon_Booking_Engine.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly HairSalonDBContext _ctx;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(HairSalonDBContext ctx)
+        public BookingController(IBookingService BookingService)
         {
-            _ctx = ctx;
+            _bookingService = BookingService;
         }
 
         [HttpGet(Name = "GetAllBookings")]
         public async Task<ActionResult<IEnumerable<GetBookingResponse>>> GetAll()
         {
-            return Ok(await _ctx.Bookings
-                .AsNoTracking()
-                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
-                .ToListAsync());
+            return Ok(await _bookingService.GetAllAsync());
         }
 
         [HttpGet("GetById/{id}", Name = "GetBookingById")]
         public async Task<ActionResult<GetBookingResponse?>> GetById(int id)
         {
-            var booking = await _ctx.Bookings
-                .AsNoTracking()
-                .Where(b => b.Id == id)
-                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
-                .FirstOrDefaultAsync();
+            var booking = await _bookingService.GetByIdAsync(id);
 
             if (booking is null)
             {
@@ -42,58 +36,42 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpPost("CreateBooking", Name = "CreateBooking")]
-        public async Task<ActionResult<CreateBookingRequest>> CreateBooking(CreateBookingRequest request)
+        public async Task<ActionResult> CreateBooking(CreateBookingRequest request)
         {
-            var newBooking = new Booking
+            var newBooking = await _bookingService.CreateAsync(request);
+
+            if(!newBooking.Success)
             {
-                CreatedAt = request.CreatedAt,
-                StartTime = request.StartTime,
-                StylistId = request.StylistId,
-                CustomerId = request.CustomerId
-            };
-
-            await _ctx.Bookings.AddAsync(newBooking);
-            await _ctx.SaveChangesAsync();
-
+                return BadRequest($"Couldnt Create New booking");
+            }
             return Ok(newBooking);
         }
 
         [HttpPut(Name = "UpdateBooking")]
-        public async Task<ActionResult<GetBookingResponse>> Update(int id, CreateBookingRequest request)
+        public async Task<ActionResult> Update(int id, CreateBookingRequest request)
         {
-            var booking = await _ctx.Bookings
-                .FirstOrDefaultAsync(b => b.Id == id);
+            var result = await _bookingService.UpdateAsync(id, request);
 
-            if (booking is null)
+            if (!result.Success)
             {
                 return NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            booking.CreatedAt = request.CreatedAt;
-            booking.StartTime = request.StartTime;
-
-            await _ctx.SaveChangesAsync();
-
-            // result behöver ändras när vi kommer på hur vi ska hantera FK
-            var result = await _ctx.Bookings
-                .AsNoTracking()
-                .FirstOrDefaultAsync(b => b.Id == id);
-
             return Ok(result);
+
         }
 
         [HttpDelete("{id}", Name = "DeleteBookingById")]
         public async Task<IActionResult> DeleteByID(int id)
         {
-            var IdToDelete = await _ctx.Bookings
-                .Where(b => b.Id == id)
-                .ExecuteDeleteAsync();
+            var result = await _bookingService.DeleteAsync(id);
 
-            if (IdToDelete == 0)
+            if (!result.Success)
             {
-                return NotFound($"No booking with this Id{id}");
+                return NotFound($"No Booking with this ID:{id}");
             }
-            return Ok(IdToDelete);
+
+            return Ok($"Booking {id} has been Deleted");
         }
     }
 }
