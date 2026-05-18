@@ -1,8 +1,6 @@
-﻿using HairSalon_Booking_Engine.Models;
-using HairSalon_Booking_Engine.Models.DTOs;
+﻿using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Controllers
 {
@@ -12,9 +10,9 @@ namespace HairSalon_Booking_Engine.Controllers
     {
         private readonly IBookingService _bookingService;
 
-        public BookingController(IBookingService BookingService)
+        public BookingController(IBookingService bookingService)
         {
-            _bookingService = BookingService;
+            _bookingService = bookingService;
         }
 
         [HttpGet(Name = "GetAllBookings")]
@@ -23,31 +21,31 @@ namespace HairSalon_Booking_Engine.Controllers
             return Ok(await _bookingService.GetAllAsync());
         }
 
-        [HttpGet("GetById/{id}", Name = "GetBookingById")]
+        [HttpGet("{id}", Name = "GetBookingById")]
         public async Task<ActionResult<GetBookingResponse?>> GetById(int id)
         {
             var booking = await _bookingService.GetByIdAsync(id);
 
             if (booking is null)
             {
-                return NotFound($"The booking with an id of {id} could not be found.");
+                return NotFound($"Kunde inte hitta någon bokning med ID: {id}");
             }
             return Ok(booking);
         }
 
-        [HttpPost("CreateBooking", Name = "CreateBooking")]
+        [HttpPost(Name = "CreateBooking")]
         public async Task<ActionResult> CreateBooking(CreateBookingRequest request)
         {
-            var newBooking = await _bookingService.CreateAsync(request);
-
-            if(!newBooking.Success)
+            var result = await _bookingService.CreateAsync(request);
+            if(!result.Success)
             {
-                return BadRequest($"Couldnt Create New booking");
+                return BadRequest(result.ErrorMessage);
             }
-            return Ok(newBooking);
+
+            return CreatedAtAction(nameof(GetById), result.Data);
         }
 
-        [HttpPut(Name = "UpdateBooking")]
+        [HttpPut("{id}", Name = "UpdateBooking")]
         public async Task<ActionResult> Update(int id, CreateBookingRequest request)
         {
             var result = await _bookingService.UpdateAsync(id, request);
@@ -57,8 +55,7 @@ namespace HairSalon_Booking_Engine.Controllers
                 return NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            return Ok(result);
-
+            return NoContent();
         }
 
         [HttpDelete("{id}", Name = "DeleteBookingById")]
@@ -68,10 +65,10 @@ namespace HairSalon_Booking_Engine.Controllers
 
             if (!result.Success)
             {
-                return NotFound($"No Booking with this ID:{id}");
+                return NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            return Ok($"Booking {id} has been Deleted");
+            return NoContent();
         }
     }
 }
