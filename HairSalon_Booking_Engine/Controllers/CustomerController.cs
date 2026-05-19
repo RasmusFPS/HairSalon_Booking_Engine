@@ -18,7 +18,7 @@ namespace HairSalon_Booking_Engine.Controllers
             _createCustomerValidator = createCustomerValidator;
         }
 
-        [HttpGet(Name = "GetCustomers")]
+        [HttpGet(Name = "GetAllCustomers")]
         public async Task<ActionResult<ICollection<GetCustomerResponse>>> GetAll()
         {
             return Ok(await _customerService.GetAllAsync());
@@ -31,7 +31,7 @@ namespace HairSalon_Booking_Engine.Controllers
 
             if (customer is null)
             {
-                return NotFound($"The customer with an id of {id} could not be found.");
+                return NotFound($"Kunde inte hitta någon kund med ID: {id}");
             }
 
             return Ok(customer);
@@ -62,7 +62,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return CreatedAtAction(nameof(GetById), result.Data);
         }
 
-        [HttpPut(Name = "UpdateCustomer")]
+        [HttpPut("{id}", Name = "UpdateCustomer")]
         public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
         {
             var result = await _customerService.UpdateAsync(id, request);

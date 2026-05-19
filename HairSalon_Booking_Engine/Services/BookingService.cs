@@ -1,7 +1,5 @@
-﻿using Azure.Core;
-using HairSalon_Booking_Engine.Models;
+﻿using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
-using HairSalon_Booking_Engine.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HairSalon_Booking_Engine.Services
@@ -32,14 +30,14 @@ namespace HairSalon_Booking_Engine.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest bookingRequest)
+        public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
         {
             var newBooking = new Booking
             {
-                CreatedAt = bookingRequest.CreatedAt,
-                StartTime = bookingRequest.StartTime,
-                StylistId = bookingRequest.StylistId,
-                CustomerId = bookingRequest.CustomerId
+                CreatedAt = request.CreatedAt,
+                StartTime = request.StartTime,
+                StylistId = request.StylistId,
+                CustomerId = request.CustomerId
             };
 
             await _ctx.Bookings.AddAsync(newBooking);
@@ -49,40 +47,37 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult<GetBookingResponse>.Ok(booking!);
         }
 
-
-        public async Task<ServiceResult> UpdateAsync(int id, CreateBookingRequest updatedBooking)
+        public async Task<ServiceResult> UpdateAsync(int id, CreateBookingRequest request)
         {
             var booking = await _ctx.Bookings
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (booking is null)
             {
-                return ServiceResult.NotFound($"No Customer with this ID: {id}");
+                return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            booking.CreatedAt = updatedBooking.CreatedAt;
-            booking.StartTime = updatedBooking.StartTime;
+            booking.CreatedAt = request.CreatedAt;
+            booking.StartTime = request.StartTime;
 
             await _ctx.SaveChangesAsync();
-
-            // result behöver ändras när vi kommer på hur vi ska hantera FK
-            var result = await _ctx.Bookings
-                .AsNoTracking()
-                .FirstOrDefaultAsync(b => b.Id == id);
 
             return ServiceResult.Ok();
         }
 
         public async Task<ServiceResult> DeleteAsync(int id)
         {
-            var IdToDelete = await _ctx.Bookings
-                .Where(b => b.Id == id)
-                .ExecuteDeleteAsync();
+            var bookingToDelete = await _ctx.Bookings
+                .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (IdToDelete == 0)
+            if (bookingToDelete is null)
             {
-                return ServiceResult.NotFound($"No booking with this Id{id}");
+                return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
             }
+
+            _ctx.Bookings.Remove(bookingToDelete);
+            await _ctx.SaveChangesAsync();
+
             return ServiceResult.Ok();
         }
     }
