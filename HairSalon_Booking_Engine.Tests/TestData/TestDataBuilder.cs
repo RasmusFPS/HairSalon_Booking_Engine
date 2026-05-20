@@ -78,10 +78,9 @@ namespace HairSalon_Booking_Engine.Tests.TestData
         /// <summary>
         /// Creates a collection of bookings with unique IDs and relationships.
         /// <param name="count">Number of bookings to create. must be positive.</param>>
-        /// <param name="includeRelations">Whether to populate Stylist and Customer navigation properties</param>
         /// <exception cref="ArgumentException">Thrown when count is less than 1.</exception>
         /// </summary>
-        public static List<Booking> CreateBookingList(int count = 3, bool includeRelations = false)
+        public static List<Booking> CreateBookingList(int count = 3)
         {
             if (count < 1)
                 throw new ArgumentException("Count must be at least 1", nameof(count));
