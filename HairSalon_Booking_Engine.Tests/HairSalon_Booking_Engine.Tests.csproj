@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HairSalon_Booking_Engine.Models\HairSalon_Booking_Engine.Models.csproj" />
+    <ProjectReference Include="..\HairSalon_Booking_Engine\HairSalon_Booking_Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
