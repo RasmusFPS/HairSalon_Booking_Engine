@@ -6,10 +6,10 @@ using HairSalon_Booking_Engine.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-namespace HairSalon_Booking_Engine.Tests
+namespace HairSalon_Booking_Engine.Tests.ControllerTests
 {
     [TestClass]
-    public sealed class BookingTest
+    public sealed class BookingControllerTest
     {
 
         private Mock<IBookingService> _ibookingservice;
