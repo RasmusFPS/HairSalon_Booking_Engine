@@ -65,8 +65,20 @@ namespace HairSalon_Booking_Engine.Controllers
         [HttpPut("{id}", Name = "UpdateCustomer")]
         public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
         {
-            var result = await _customerService.UpdateAsync(id, request);
+            var validationResult = await _createCustomerValidator.ValidateAsync(request);
 
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(error => new
+                {
+                    field = error.PropertyName,
+                    message = error.ErrorMessage,
+                });
+
+                return BadRequest(errors);
+            }
+
+            var result = await _customerService.UpdateAsync(id, request);
             if (!result.Success)
             {
                 return ToErrorResponse(result);
