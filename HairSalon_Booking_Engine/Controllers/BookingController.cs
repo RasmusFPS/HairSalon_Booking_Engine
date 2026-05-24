@@ -1,5 +1,8 @@
-﻿using HairSalon_Booking_Engine.Models.DTOs;
+﻿using FluentValidation;
+using HairSalon_Booking_Engine.Models.DTOs;
+using HairSalon_Booking_Engine.Models.DTOs.Validation;
 using HairSalon_Booking_Engine.Services;
+using HairSalon_Booking_Engine.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HairSalon_Booking_Engine.Controllers
@@ -9,10 +12,13 @@ namespace HairSalon_Booking_Engine.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly IValidator<CreateBookingRequest> _createBookingValidator;
 
-        public BookingController(IBookingService bookingService)
+
+        public BookingController(IBookingService bookingService, IValidator<CreateBookingRequest> createBookingValidator)
         {
             _bookingService = bookingService;
+            _createBookingValidator = createBookingValidator;
         }
 
         [HttpGet(Name = "GetAllBookings")]
@@ -36,11 +42,20 @@ namespace HairSalon_Booking_Engine.Controllers
         [HttpPost(Name = "CreateBooking")]
         public async Task<ActionResult> CreateBooking(CreateBookingRequest request)
         {
-            var result = await _bookingService.CreateAsync(request);
-            if(!result.Success)
+            var validationResult = await _createBookingValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
             {
-                return BadRequest(result.ErrorMessage);
+                var errors = validationResult.Errors.Select(error => new
+                {
+                    field = error.PropertyName,
+                    message = error.ErrorMessage,
+                });
+
+                return BadRequest(errors);
             }
+
+            var result = await _bookingService.CreateAsync(request);
 
             return CreatedAtAction(nameof(GetById), result.Data);
         }
