@@ -37,10 +37,9 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             _serviceMock.Setup(service => service.GetAllAsync()).ReturnsAsync(fakebookings);
 
             var result = await _controller.GetAll();
-            var obj = result.Result as ObjectResult;
+            //var obj = result.Result as ObjectResult;
 
-            Assert.AreEqual(200, obj.StatusCode);
-           
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
     }
 }
