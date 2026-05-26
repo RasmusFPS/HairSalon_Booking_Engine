@@ -1,23 +1,25 @@
-﻿using HairSalon_Booking_Engine.Services;
-using HairSalon_Booking_Engine.Models.DTOs;
-using Moq;
-using HairSalon_Booking_Engine.Models;
+﻿using FluentValidation;
 using HairSalon_Booking_Engine.Controllers;
+using HairSalon_Booking_Engine.Models.DTOs;
+using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Moq;
 
 namespace HairSalon_Booking_Engine.Tests.ControllerTests
 {
     [TestClass]
     public sealed class BookingControllerTest
     {
+        private Mock<IBookingService> _serviceMock = null!;
+        private Mock<IValidator<CreateBookingRequest>> _validatorMock = null!;
+        private BookingController _controller = null!;
 
-        private Mock<IBookingService> _ibookingservice;
-        private BookingController _bookingcontroller;
         [TestInitialize]
         public void setup()
         {
-            _ibookingservice = new Mock<IBookingService>();
+            _serviceMock = new Mock<IBookingService>();
+            _validatorMock = new Mock<IValidator<CreateBookingRequest>>();
+            _controller = new BookingController(_serviceMock.Object, _validatorMock.Object);
         }
 
         [TestMethod]
@@ -32,11 +34,9 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
                 new(new DateTime(2025, 5, 2), new DateTime(2025, 5, 12, 11, 0, 0), 1, 2)
            };
 
-            _ibookingservice.Setup(service => service.GetAllAsync()).ReturnsAsync(fakebookings);
+            _serviceMock.Setup(service => service.GetAllAsync()).ReturnsAsync(fakebookings);
 
-            _bookingcontroller = new BookingController(_ibookingservice.Object);
-
-            var result = await _bookingcontroller.GetAll();
+            var result = await _controller.GetAll();
             var obj = result.Result as ObjectResult;
 
             Assert.AreEqual(200, obj.StatusCode);
