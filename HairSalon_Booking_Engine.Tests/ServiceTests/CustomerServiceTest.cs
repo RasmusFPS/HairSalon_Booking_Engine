@@ -1,6 +1,8 @@
+using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HairSalon_Booking_Engine.Tests.ServiceTests;
 
@@ -38,4 +40,65 @@ public class CustomerServiceTest
         Assert.IsFalse(result.Success);
         Assert.AreEqual(ServiceResultStatus.NotFound, result.Status);
     }
+
+    [TestMethod]
+    public async Task GetByIdAsync_ExistingId_ReturnsCorrectCustomer()
+    {
+        // Arrange
+        await using var ctx = DbContextFactory.Create(nameof(GetByIdAsync_ExistingId_ReturnsCorrectCustomer));
+        ctx.Customers.Add(TestDataBuilder.CreateCustomer(id: 1));
+        await ctx.SaveChangesAsync();
+
+        var service = new CustomerService(ctx);
+
+        // Act
+        var result = await service.GetByIdAsync(1);
+
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Anna", result.FirstName);
+        Assert.AreEqual("Johansson", result.LastName);
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_NonExistingId_ReturnsNull()
+    {
+        //Arrange
+        await using var ctx = DbContextFactory.Create(nameof(GetByIdAsync_NonExistingId_ReturnsNull));
+        var service = new CustomerService(ctx);
+
+        //Act
+        var result = await service.GetByIdAsync(999);
+
+        //Assert
+        Assert.IsNull(result);
+
+        // no customer gets added to the database - its empty
+        // we apply and search for id 999, which doesnt exist,
+        // and assert IsNull instead for IsNotNull
+    }
+
+    [TestMethod]
+    public async Task CreateAsync_ValidRequest_PersistsCustomer()
+    {
+        // Arrange
+        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ValidRequest_PersistsCustomer));
+        var service = new CustomerService(ctx);
+        var request = new CreateCustomerRequest("Anna", "Johansson", "+46701234567", "anna.johansson@email.com");
+
+        // Act
+        var result = await service.CreateAsync(request);
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        var created = ctx.Customers.FirstOrDefault(c => c.FirstName == "Anna");
+        Assert.IsNotNull(created);
+        Assert.IsNotNull("Anna", created.FirstName);
+        Assert.AreEqual("Johansson", created.LastName);
+
+
+
+    }
+
+
 }
