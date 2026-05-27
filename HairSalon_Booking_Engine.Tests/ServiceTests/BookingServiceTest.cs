@@ -1,3 +1,4 @@
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
@@ -12,7 +13,15 @@ public class BookingServiceTest
     {
         await using var ctx = DbContextFactory.Create(nameof(GetByIdAsync_ExistingId_ReturnsCorrectBooking));
 
-        var fakeDbBooking = TestDataBuilder.CreateBooking(id: 1, stylistId: 2, customerId: 3);
+        var fakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
+
+        var fakeStylist = TestDataBuilder.CreateStylist(id:1);
+
+        ctx.Customers.Add(fakeCustomer);
+        ctx.Stylist.Add(fakeStylist);
+
+
+        var fakeDbBooking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
 
         ctx.Bookings.Add(fakeDbBooking);
         await ctx.SaveChangesAsync();
@@ -33,7 +42,7 @@ public class BookingServiceTest
     {
         //Arrange
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_ExistingBooking_UpdatesFields));
-        ctx.Bookings.Add(TestDataBuilder.CreateBooking(id: 1, stylistId: 2, customerId: 3));
+        ctx.Bookings.Add(TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1));
         await ctx.SaveChangesAsync();
         var service = new BookingService(ctx);
 
