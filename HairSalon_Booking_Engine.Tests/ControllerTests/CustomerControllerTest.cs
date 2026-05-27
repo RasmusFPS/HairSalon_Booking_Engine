@@ -25,7 +25,7 @@ public class CustomerControllerTest
     [TestMethod]
     public async Task Update_ExistingCustomer_ReturnsNoContent()
     {
-        var request = new CreateCustomerRequest("Anna", "Berg", "+46701234567", null);
+        var request = new UpdateCustomerRequest("Anna", "Berg", "+46701234567", null);
         _serviceMock.Setup(s => s.UpdateAsync(1, request)).ReturnsAsync(ServiceResult.Ok());
 
         var actionResult = await _controller.Update(1, request);
@@ -36,7 +36,7 @@ public class CustomerControllerTest
     [TestMethod]
     public async Task Update_NonExistingCustomer_ReturnsNotFound()
     {
-        var request = new CreateCustomerRequest("Anna", "Berg", "+46701234567", null);
+        var request = new UpdateCustomerRequest("Anna", "Berg", "+46701234567", null);
         _serviceMock
             .Setup(s => s.UpdateAsync(999, request))
             .ReturnsAsync(ServiceResult.NotFound("Ingen kund hittades med ID: 999"));

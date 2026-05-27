@@ -17,7 +17,20 @@ namespace HairSalon_Booking_Engine.Services
         {
             return await _ctx.Bookings
                 .AsNoTracking()
-                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingResponse(
+                    b.Id,
+                    b.CreatedAt, 
+                    b.StartTime, 
+                    new GetStylistResponse(
+                        b.Stylist.Id,
+                        b.Stylist.FirstName, 
+                        b.Stylist.LastName ?? ""), 
+                    new GetCustomerResponse(
+                        b.Customer.Id,
+                        b.Customer.FirstName, 
+                        b.Customer.LastName, 
+                        b.Customer.Phone, 
+                        b.Customer.Email)))
                 .ToListAsync();
         }
 
@@ -26,7 +39,20 @@ namespace HairSalon_Booking_Engine.Services
             return await _ctx.Bookings
                 .AsNoTracking()
                 .Where(b => b.Id == id)
-                .Select(b => new GetBookingResponse(b.CreatedAt, b.StartTime, b.StylistId, b.CustomerId))
+                .Select(b => new GetBookingResponse(
+                    b.Id,
+                    b.CreatedAt, 
+                    b.StartTime, 
+                    new GetStylistResponse(
+                        b.Stylist.Id,
+                        b.Stylist.FirstName, 
+                        b.Stylist.LastName ?? ""),
+                    new GetCustomerResponse(
+                        b.Customer.Id,
+                        b.Customer.FirstName, 
+                        b.Customer.LastName, 
+                        b.Customer.Phone, 
+                        b.Customer.Email)))
                 .FirstOrDefaultAsync();
         }
 
@@ -34,7 +60,7 @@ namespace HairSalon_Booking_Engine.Services
         {
             var newBooking = new Booking
             {
-                CreatedAt = request.CreatedAt,
+                CreatedAt = DateTime.Now,
                 StartTime = request.StartTime,
                 StylistId = request.StylistId,
                 CustomerId = request.CustomerId
@@ -47,18 +73,18 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult<GetBookingResponse>.Ok(booking!);
         }
 
-        public async Task<ServiceResult> UpdateAsync(int id, CreateBookingRequest request)
+        public async Task<ServiceResult> UpdateAsync(int id, UpdateBookingRequest request)
         {
-            var booking = await _ctx.Bookings
-                .FirstOrDefaultAsync(b => b.Id == id);
+            var booking = await _ctx.Bookings.FindAsync(id);
 
             if (booking is null)
             {
                 return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            booking.CreatedAt = request.CreatedAt;
             booking.StartTime = request.StartTime;
+            booking.StylistId = request.StylistId;
+            booking.CustomerId = request.CustomerId;
 
             await _ctx.SaveChangesAsync();
 
@@ -67,8 +93,7 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<ServiceResult> DeleteAsync(int id)
         {
-            var bookingToDelete = await _ctx.Bookings
-                .FirstOrDefaultAsync(b => b.Id == id);
+            var bookingToDelete = await _ctx.Bookings.FindAsync(id);
 
             if (bookingToDelete is null)
             {

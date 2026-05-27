@@ -59,24 +59,25 @@ namespace HairSalon_Booking_Engine.Controllers
                 return BadRequest(result.ErrorMessage);
             }
 
-            return CreatedAtAction(nameof(GetById), result.Data);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
         }
 
+        // Validation behöver finnas för update requests också, inte bara create
         [HttpPut("{id}", Name = "UpdateCustomer")]
-        public async Task<ActionResult> Update(int id, CreateCustomerRequest request)
+        public async Task<ActionResult> Update(int id, UpdateCustomerRequest request)
         {
-            var validationResult = await _createCustomerValidator.ValidateAsync(request);
+            //var validationResult = await _createCustomerValidator.ValidateAsync(request);
 
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(error => new
-                {
-                    field = error.PropertyName,
-                    message = error.ErrorMessage,
-                });
+            //if (!validationResult.IsValid)
+            //{
+            //    var errors = validationResult.Errors.Select(error => new
+            //    {
+            //        field = error.PropertyName,
+            //        message = error.ErrorMessage,
+            //    });
 
-                return BadRequest(errors);
-            }
+            //    return BadRequest(errors);
+            //}
 
             var result = await _customerService.UpdateAsync(id, request);
             if (!result.Success)

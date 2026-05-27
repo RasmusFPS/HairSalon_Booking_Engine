@@ -23,22 +23,26 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task GetAllBooking_ShouldReturnOkResult_WithListOfBookings()
+        public async Task GetAllBooking_ReturnsOkWithBookings()
         {
-            //
+            //Arrange
+            var bookings = new List<GetBookingResponse>
+            {
+                new(1,
+                DateTime.Today,
+                DateTime.Today.AddDays(1),
+                new GetStylistResponse(1, "Stylist", "Name"),
+                new GetCustomerResponse(1, "Customer", "Name", "+46701234567", "customer@email.se")),
+            };
+            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(bookings);
 
-            //fake data
-           var fakebookings = new List<GetBookingResponse>
-           {
-                new(new DateTime(2025, 5, 1), new DateTime(2025, 5, 12, 10, 0, 0), 1, 1),
-                new(new DateTime(2025, 5, 2), new DateTime(2025, 5, 12, 11, 0, 0), 1, 2)
-           };
+            //Act
+            var actionResult = await _controller.GetAll();
 
-            _serviceMock.Setup(service => service.GetAllAsync()).ReturnsAsync(fakebookings);
-
-            var result = await _controller.GetAll();
-
-            Assert.IsInstanceOfType(result.Result, typeof(OkObjectResult));
+            //Assert
+            var ok = actionResult.Result as OkObjectResult;
+            Assert.IsNotNull(ok);
+            Assert.AreEqual(bookings, ok.Value);
         }
     }
 }

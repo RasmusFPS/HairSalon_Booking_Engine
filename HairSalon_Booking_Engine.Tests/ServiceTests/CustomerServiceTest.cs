@@ -18,7 +18,7 @@ public class CustomerServiceTest
 
         var service = new CustomerService(ctx);
         // använd DTO för att uppdatera, precis som i vanliga service metoderna
-        var updateRequest = new CreateCustomerRequest("New", "Name", "+46709876543", null);
+        var updateRequest = new UpdateCustomerRequest("New", "Name", "+46709876543", null);
 
         var result = await service.UpdateAsync(1, updateRequest);
 
@@ -33,7 +33,7 @@ public class CustomerServiceTest
     {
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_NonExistingId_ReturnsNotFound));
         var service = new CustomerService(ctx);
-        var request = new CreateCustomerRequest("New", "Name", "+46701234567", null);
+        var request = new UpdateCustomerRequest("New", "Name", "+46701234567", null);
 
         var result = await service.UpdateAsync(999, request);
 

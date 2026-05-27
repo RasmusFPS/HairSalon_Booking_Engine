@@ -1,8 +1,6 @@
 ﻿using FluentValidation;
 using HairSalon_Booking_Engine.Models.DTOs;
-using HairSalon_Booking_Engine.Models.DTOs.Validation;
 using HairSalon_Booking_Engine.Services;
-using HairSalon_Booking_Engine.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HairSalon_Booking_Engine.Controllers
@@ -57,11 +55,11 @@ namespace HairSalon_Booking_Engine.Controllers
 
             var result = await _bookingService.CreateAsync(request);
 
-            return CreatedAtAction(nameof(GetById), result.Data);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
         }
 
         [HttpPut("{id}", Name = "UpdateBooking")]
-        public async Task<ActionResult> Update(int id, CreateBookingRequest request)
+        public async Task<ActionResult> Update(int id, UpdateBookingRequest request)
         {
             var result = await _bookingService.UpdateAsync(id, request);
 
