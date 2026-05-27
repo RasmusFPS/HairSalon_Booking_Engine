@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 
 namespace HairSalon_Booking_Engine.Validation
@@ -8,10 +7,6 @@ namespace HairSalon_Booking_Engine.Validation
     {
         public CreateBookingValidation()
         {
-            RuleFor(b => b.CreatedAt)
-                .NotEmpty().WithMessage("Created date is required.");
-
-
             RuleFor(b => b.StartTime)
                 .NotEmpty()
                 .GreaterThan(DateTime.Now).WithMessage("You cannot make a booking in the past");
@@ -20,11 +15,9 @@ namespace HairSalon_Booking_Engine.Validation
                 .NotEmpty().WithMessage("You have to choose a StylistId")
                 .GreaterThan(0).WithMessage("Invalid Stylist ID.");
 
-
             RuleFor(b => b.CustomerId)
                 .NotEmpty().WithMessage("You have to choose a CustomerId")
                 .GreaterThan(0).WithMessage("Invalid Customer ID.");
-
         }
     }
 }

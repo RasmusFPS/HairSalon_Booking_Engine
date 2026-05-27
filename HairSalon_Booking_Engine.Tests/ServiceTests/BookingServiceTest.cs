@@ -1,7 +1,6 @@
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
-using System.Threading.Tasks;
 
 namespace HairSalon_Booking_Engine.Tests.ServiceTests;
 
@@ -24,8 +23,8 @@ public class BookingServiceTest
 
         Assert.IsNotNull(result);
 
-        Assert.AreEqual(fakeDbBooking.CustomerId, result.CustomerId);
-        Assert.AreEqual(fakeDbBooking.StylistId, result.StylistId);
+        Assert.AreEqual(fakeDbBooking.CustomerId, result.Customer.Id);
+        Assert.AreEqual(fakeDbBooking.StylistId, result.Stylist.Id);
         Assert.AreEqual(fakeDbBooking.StartTime, result.StartTime);
     }
 
@@ -39,7 +38,7 @@ public class BookingServiceTest
         var service = new BookingService(ctx);
 
         var updatedTime = DateTime.Now.AddDays(1);
-        var updateRequest = new CreateBookingRequest(DateTime.Now, updatedTime, 1, 2);
+        var updateRequest = new UpdateBookingRequest(updatedTime, 1, 2);
 
         //Act
         var result = await service.UpdateAsync(1, updateRequest);
@@ -58,7 +57,7 @@ public class BookingServiceTest
         //Arrange
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_NonExistingId_ReturnsNotFound));
         var service = new BookingService(ctx);
-        var updateRequest = new CreateBookingRequest(DateTime.Now, DateTime.Now, 1, 1);
+        var updateRequest = new UpdateBookingRequest(DateTime.Now, 1, 1);
 
         //Act
         var result = await service.UpdateAsync(999, updateRequest);
