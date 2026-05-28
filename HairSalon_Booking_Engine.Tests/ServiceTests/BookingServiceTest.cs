@@ -75,4 +75,23 @@ public class BookingServiceTest
         Assert.IsFalse(result.Success);
         Assert.AreEqual(ServiceResultStatus.NotFound, result.Status);
     }
+
+    [TestMethod]
+    public async Task DeleteAsync_ExistingBooking_RemovesFromDatabase()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_ExistingBooking_RemovesFromDatabase));
+        var fakeDbBooking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
+
+        ctx.Bookings.Add(fakeDbBooking);
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
+
+        var IdToDelete = await service.DeleteAsync(1);
+
+        var result = await service.GetByIdAsync(1);
+
+        Assert.IsNull(result);
+
+    }
 }
