@@ -100,5 +100,25 @@ public class CustomerServiceTest
 
     }
 
+    [TestMethod]
+    public async Task CreateAsync_ReturnsCreatedCustomerData()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedCustomerData));
+        var service = new CustomerService(ctx);
+        var request = new CreateCustomerRequest(
+            FirstName: "TestName",
+            LastName: "Test",
+            Phone: "00000099",
+            Email: "Test@email.com"
+        );
+
+        var result = await service.CreateAsync(request);
+
+        Assert.IsNotNull(result);
+
+        var savedCustomer = await ctx.Customers.FindAsync(result.Data.Id);
+        Assert.IsNotNull(savedCustomer);
+    }
+
 
 }
