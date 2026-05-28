@@ -2,6 +2,7 @@ using FluentValidation;
 using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
+using HairSalon_Booking_Engine.Tests.TestData;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -46,4 +47,36 @@ public class CustomerControllerTest
         Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
     }
 
+    [TestMethod]
+    public async Task GetAll_ReturnsOkWithCustomers()
+    {
+        // 1. Arrange
+        //Creates a list of test customers
+        var testCustomers = TestDataBuilder.CreateCustomerResponseList();
+
+        // Tells the mock to return our list
+        _serviceMock
+            .Setup(s => s.GetAllAsync())
+            .ReturnsAsync(testCustomers);
+
+        // 2. Act
+        var actionResult = await _controller.GetAll();
+
+        // 3. Assert
+        // Checks if the controller returned a 200 ok status code
+        Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
+
+        // Converts result into OkObjectResult
+        var okResult = actionResult.Result as OkObjectResult;
+        // Checks if the conversion worked
+        Assert.IsNotNull(okResult);
+
+        // Gets the data in okResult
+        var returnedCustomers = okResult.Value as IEnumerable<GetCustomerResponse>;
+        //Fail safe
+        Assert.IsNotNull(returnedCustomers);
+        //Checks if the amount of customers the test got back matches the amount in the test customer list
+        Assert.AreEqual(testCustomers.Count, returnedCustomers.Count());
+
+    }   
 }
