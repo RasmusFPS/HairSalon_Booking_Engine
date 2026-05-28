@@ -1,4 +1,5 @@
 ﻿using HairSalon_Booking_Engine.Models;
+using HairSalon_Booking_Engine.Models.DTOs;
 
 namespace HairSalon_Booking_Engine.Tests.TestData
 {
@@ -104,6 +105,22 @@ namespace HairSalon_Booking_Engine.Tests.TestData
 
             return Enumerable.Range(1, count)
                 .Select(i => CreateSchedule(id: i, stylistId: stylistId))
+                .ToList();
+        }
+
+        public static List<GetCustomerResponse> CreateCustomerResponseList(int count = 3)
+        {
+            if (count < 1)
+                throw new ArgumentException("Count must be at least 1", nameof(count));
+
+            return Enumerable.Range(1, count)
+                .Select(i => new GetCustomerResponse(
+                    i,
+                    $"Customer{i}",
+                    "Berg",
+                    $"+4670123456{i}",
+                    $"customer{i}@email.com"
+                ))
                 .ToList();
         }
     }
