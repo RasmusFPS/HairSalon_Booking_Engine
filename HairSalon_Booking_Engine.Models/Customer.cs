@@ -20,6 +20,5 @@ namespace HairSalon_Booking_Engine.Models
 
         // navigation properties
         public ICollection<Booking> Bookings { get; set; } = null!;
-        //public ICollection<Transaction> Transactions { get; set; } = null!;
     }
 }
