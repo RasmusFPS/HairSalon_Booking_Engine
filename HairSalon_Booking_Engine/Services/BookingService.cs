@@ -18,19 +18,20 @@ namespace HairSalon_Booking_Engine.Services
             return await _ctx.Bookings
                 .AsNoTracking()
                 .Select(b => new GetBookingResponse(
-                    b.Id,
+                    b.Id, 
                     b.CreatedAt, 
-                    b.StartTime, 
+                    b.StartTime,
                     new GetStylistResponse(
-                        b.Stylist.Id,
+                        b.Stylist.Id, 
                         b.Stylist.FirstName, 
-                        b.Stylist.LastName ?? ""), 
+                        b.Stylist.LastName ?? ""),
                     new GetCustomerResponse(
-                        b.Customer.Id,
+                        b.Customer.Id, 
                         b.Customer.FirstName, 
                         b.Customer.LastName, 
                         b.Customer.Phone, 
-                        b.Customer.Email)))
+                        b.Customer.Email),
+                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
                 .ToListAsync();
         }
 
@@ -41,18 +42,19 @@ namespace HairSalon_Booking_Engine.Services
                 .Where(b => b.Id == id)
                 .Select(b => new GetBookingResponse(
                     b.Id,
-                    b.CreatedAt, 
-                    b.StartTime, 
+                    b.CreatedAt,
+                    b.StartTime,
                     new GetStylistResponse(
                         b.Stylist.Id,
-                        b.Stylist.FirstName, 
+                        b.Stylist.FirstName,
                         b.Stylist.LastName ?? ""),
                     new GetCustomerResponse(
                         b.Customer.Id,
-                        b.Customer.FirstName, 
-                        b.Customer.LastName, 
-                        b.Customer.Phone, 
-                        b.Customer.Email)))
+                        b.Customer.FirstName,
+                        b.Customer.LastName,
+                        b.Customer.Phone,
+                        b.Customer.Email),
+                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
                 .FirstOrDefaultAsync();
         }
 

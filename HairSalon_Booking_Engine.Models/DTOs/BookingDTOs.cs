@@ -6,7 +6,7 @@
         DateTime StartTime, 
         GetStylistResponse Stylist, 
         GetCustomerResponse Customer, 
-        ICollection<GetTreatmentResponse> Treatments);
+        IEnumerable<GetTreatmentResponse> Treatments);
     public record CreateBookingRequest(DateTime StartTime, int StylistId, int CustomerId);
     public record UpdateBookingRequest(DateTime StartTime, int StylistId, int CustomerId);
 
