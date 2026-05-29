@@ -41,18 +41,18 @@ namespace HairSalon_Booking_Engine.Services
                 .AsNoTracking()
                 .Where(b => b.Id == id)
                 .Select(b => new GetBookingResponse(
-                    b.Id,
-                    b.CreatedAt,
+                    b.Id, 
+                    b.CreatedAt, 
                     b.StartTime,
                     new GetStylistResponse(
-                        b.Stylist.Id,
-                        b.Stylist.FirstName,
+                        b.Stylist.Id, 
+                        b.Stylist.FirstName, 
                         b.Stylist.LastName ?? ""),
                     new GetCustomerResponse(
-                        b.Customer.Id,
-                        b.Customer.FirstName,
-                        b.Customer.LastName,
-                        b.Customer.Phone,
+                        b.Customer.Id, 
+                        b.Customer.FirstName, 
+                        b.Customer.LastName, 
+                        b.Customer.Phone, 
                         b.Customer.Email),
                     b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
                 .FirstOrDefaultAsync();
@@ -87,6 +87,7 @@ namespace HairSalon_Booking_Engine.Services
             booking.StartTime = request.StartTime;
             booking.StylistId = request.StylistId;
             booking.CustomerId = request.CustomerId;
+            booking.Status = BookingStatus.Pending; // kanske bör vara confirmed?
 
             await _ctx.SaveChangesAsync();
 
