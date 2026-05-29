@@ -11,11 +11,15 @@ namespace HairSalon_Booking_Engine.Models
 
         [Required]
         public DateTime StartTime { get; set; }
-        public int StylistId { get; set; }
-        public int CustomerId { get; set; }
+
+        [Required]
+        public DateTime EndTime { get; set; }
 
         [Required]
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
+        public int StylistId { get; set; }
+        public int CustomerId { get; set; }
 
         // navigation properties
         public Stylist Stylist { get; set; } = null!;

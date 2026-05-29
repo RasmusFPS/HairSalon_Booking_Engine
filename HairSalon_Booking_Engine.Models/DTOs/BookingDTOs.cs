@@ -4,6 +4,7 @@
         int Id, 
         DateTime CreatedAt, 
         DateTime StartTime, 
+        DateTime EndTime, 
         BookingStatus Status, 
         GetStylistResponse Stylist, 
         GetCustomerResponse Customer, 

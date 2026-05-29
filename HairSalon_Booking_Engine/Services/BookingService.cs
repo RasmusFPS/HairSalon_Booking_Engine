@@ -21,6 +21,7 @@ namespace HairSalon_Booking_Engine.Services
                     b.Id, 
                     b.CreatedAt, 
                     b.StartTime, 
+                    b.EndTime, 
                     b.Status,
                     new GetStylistResponse(
                         b.Stylist.Id, 
@@ -45,6 +46,7 @@ namespace HairSalon_Booking_Engine.Services
                     b.Id, 
                     b.CreatedAt, 
                     b.StartTime, 
+                    b.EndTime, 
                     b.Status,
                     new GetStylistResponse(
                         b.Stylist.Id, 
