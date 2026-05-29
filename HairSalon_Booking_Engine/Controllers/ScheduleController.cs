@@ -20,5 +20,11 @@ namespace HairSalon_Booking_Engine.Controllers
         {
             return Ok(await _scheduleService.GetAllAsync());
         }
+
+        [HttpGet("{id}",Name = "GetStylistScheduleById")]
+        public async Task<ActionResult<GetScheduleResponse>> GetById(int id)
+        {
+            return Ok(await _scheduleService.GetByIdAsync(id));
+        }
     }
 }

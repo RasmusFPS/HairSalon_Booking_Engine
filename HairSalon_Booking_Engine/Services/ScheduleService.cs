@@ -25,5 +25,23 @@ namespace HairSalon_Booking_Engine.Services
                     new GetStylistResponse(c.StylistId, c.Stylist.FirstName, c.Stylist.LastName ?? "")))
                 .ToListAsync();
         }
+
+        public async Task<List<GetScheduleResponse>> GetByIdAsync(int id)
+        {
+            return await _ctx.Schedules
+                .AsNoTracking()
+                .Where(s => s.StylistId == id)
+                .Select(s => new GetScheduleResponse(
+                    s.Id,
+                    s.StartTime,
+                    s.EndTime,
+                    s.Available,
+                    s.Notes,
+                    new GetStylistResponse(
+                        s.Stylist.Id,
+                        s.Stylist.FirstName,
+                        s.Stylist.LastName ?? ""
+                    ))).ToListAsync();
+        }
     }
 }
