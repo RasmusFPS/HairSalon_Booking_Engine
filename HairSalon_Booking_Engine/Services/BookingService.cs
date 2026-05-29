@@ -20,7 +20,8 @@ namespace HairSalon_Booking_Engine.Services
                 .Select(b => new GetBookingResponse(
                     b.Id, 
                     b.CreatedAt, 
-                    b.StartTime,
+                    b.StartTime, 
+                    b.Status,
                     new GetStylistResponse(
                         b.Stylist.Id, 
                         b.Stylist.FirstName, 
@@ -43,7 +44,8 @@ namespace HairSalon_Booking_Engine.Services
                 .Select(b => new GetBookingResponse(
                     b.Id, 
                     b.CreatedAt, 
-                    b.StartTime,
+                    b.StartTime, 
+                    b.Status,
                     new GetStylistResponse(
                         b.Stylist.Id, 
                         b.Stylist.FirstName, 
@@ -60,12 +62,25 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
         {
+            // kolla ifall treatments finns och hämta dem
+            var treatments = await _ctx.Treatments
+                .Where(t => request.TreatmentIds.Contains(t.Id))
+                .ToListAsync();
+
+            if (treatments.Count != request.TreatmentIds.Count)
+            {
+                return ServiceResult<GetBookingResponse>.ValidationError(
+                    "En eller flera behandlingar kunde inte hittas");
+            }
+
             var newBooking = new Booking
             {
                 CreatedAt = DateTime.Now,
                 StartTime = request.StartTime,
                 StylistId = request.StylistId,
-                CustomerId = request.CustomerId
+                CustomerId = request.CustomerId,
+                Status = BookingStatus.Pending, // börja som pending, ändra senare
+                Treatments = treatments
             };
 
             await _ctx.Bookings.AddAsync(newBooking);
@@ -84,13 +99,28 @@ namespace HairSalon_Booking_Engine.Services
                 return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
+            if (booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.Cancelled)
+            {
+                return ServiceResult.ValidationError("Kan inte uppdatera klarmarkerad eller avbokad bokning");
+            }
+
+            if (request.TreatmentIds?.Any() == true)
+            {
+                var treatments = await _ctx.Treatments
+                    .Where(t => request.TreatmentIds.Contains(t.Id))
+                    .ToListAsync();
+
+                if (treatments.Count != request.TreatmentIds.Count)
+                {
+                    return ServiceResult.ValidationError("En eller flera behandlingar kunde inte hittas");
+                }
+            }
+
             booking.StartTime = request.StartTime;
             booking.StylistId = request.StylistId;
             booking.CustomerId = request.CustomerId;
-            booking.Status = BookingStatus.Pending; // kanske bör vara confirmed?
 
             await _ctx.SaveChangesAsync();
-
             return ServiceResult.Ok();
         }
 
@@ -105,7 +135,6 @@ namespace HairSalon_Booking_Engine.Services
 
             _ctx.Bookings.Remove(bookingToDelete);
             await _ctx.SaveChangesAsync();
-
             return ServiceResult.Ok();
         }
     }

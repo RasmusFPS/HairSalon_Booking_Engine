@@ -8,8 +8,20 @@
         GetStylistResponse Stylist, 
         GetCustomerResponse Customer, 
         IEnumerable<GetTreatmentResponse> Treatments);
-    public record CreateBookingRequest(DateTime StartTime, int StylistId, int CustomerId, List<int> TreatmentIds);
-    public record UpdateBookingRequest(DateTime StartTime, int StylistId, int CustomerId, List<int>? TreatmentIds = null);
+
+    public record CreateBookingRequest(
+        DateTime StartTime, 
+        int StylistId, 
+        int CustomerId, 
+        List<int> TreatmentIds);
+
+    public record UpdateBookingRequest(
+        DateTime StartTime, 
+        int StylistId, 
+        int CustomerId, 
+        List<int>? TreatmentIds = null);
+
+    public record CheckAvailabilityRequest(int StylistId, DateTime StartTime, DateTime EndTime);
 
     // Kanske borde flyttas in till en egen StylistDTOs?
     // Kanske är onödigt om det bara ska finnas en DTO?
