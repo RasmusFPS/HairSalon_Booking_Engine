@@ -75,10 +75,15 @@ namespace HairSalon_Booking_Engine.Services
                     "En eller flera behandlingar kunde inte hittas");
             }
 
+            // räkna ut sluttiden baserat på treatment tiderna
+            var totalDurationMin = treatments.Sum(t => t.DurationMin);
+            var endTime = request.StartTime.AddMinutes(totalDurationMin);
+
             var newBooking = new Booking
             {
                 CreatedAt = DateTime.Now,
                 StartTime = request.StartTime,
+                EndTime = endTime,
                 StylistId = request.StylistId,
                 CustomerId = request.CustomerId,
                 Status = BookingStatus.Pending, // börja som pending, ändra senare
@@ -106,6 +111,7 @@ namespace HairSalon_Booking_Engine.Services
                 return ServiceResult.ValidationError("Kan inte uppdatera klarmarkerad eller avbokad bokning");
             }
 
+            // räkna om sluttiden på bokningen om treatments har skickats in
             if (request.TreatmentIds?.Any() == true)
             {
                 var treatments = await _ctx.Treatments
@@ -116,6 +122,10 @@ namespace HairSalon_Booking_Engine.Services
                 {
                     return ServiceResult.ValidationError("En eller flera behandlingar kunde inte hittas");
                 }
+
+                var totalDurationMin = treatments.Sum(t => t.DurationMin);
+                booking.EndTime = request.StartTime.AddMinutes(totalDurationMin);
+                booking.Treatments = treatments;
             }
 
             booking.StartTime = request.StartTime;
