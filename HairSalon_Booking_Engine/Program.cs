@@ -29,6 +29,7 @@ namespace HairSalon_Booking_Engine
 
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IScheduleService, ScheduleService>();
             builder.Services.AddValidatorsFromAssemblyContaining<CreateCustomerValidator>();
 
             var app = builder.Build();
