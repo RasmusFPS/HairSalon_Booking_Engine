@@ -105,5 +105,19 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             Assert.IsNotNull(result);
 
         }
+
+        [TestMethod]
+        public async Task DeleteByID_ExistingBooking_ReturnsNoContent()
+        {
+            int idToDelete = 1;
+
+            _serviceMock
+                .Setup(s => s.DeleteAsync(idToDelete))
+                .ReturnsAsync(new ServiceResult(ServiceResultStatus.Success));
+
+            var actionResult = await _controller.DeleteByID(idToDelete);
+
+            Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
+        }
     }
 }

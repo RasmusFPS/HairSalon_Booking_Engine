@@ -51,7 +51,6 @@ public class CustomerControllerTest
     [TestMethod]
     public async Task GetAll_ReturnsOkWithCustomers()
     {
-        // 1. Arrange
         //Creates a list of test customers
         var testCustomers = TestDataBuilder.CreateCustomerResponseList();
 
@@ -60,10 +59,8 @@ public class CustomerControllerTest
             .Setup(s => s.GetAllAsync())
             .ReturnsAsync(testCustomers);
 
-        // 2. Act
         var actionResult = await _controller.GetAll();
 
-        // 3. Assert
         // Checks if the controller returned a 200 ok status code
         Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
 
@@ -99,4 +96,17 @@ public class CustomerControllerTest
 
     }
 
+    [TestMethod]
+    public async Task DeleteById_ExistingCustomer_ReturnsNoContent()
+    {
+        int idToDelete = 1;
+
+        _serviceMock
+            .Setup(s => s.DeleteAsync(idToDelete))
+            .ReturnsAsync(new ServiceResult(ServiceResultStatus.Success));
+
+        var actionResult = await _controller.DeleteByID(idToDelete);
+
+        Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
+    }
 }
