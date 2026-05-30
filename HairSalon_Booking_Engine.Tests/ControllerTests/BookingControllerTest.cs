@@ -3,6 +3,7 @@ using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
+using HairSalon_Booking_Engine.Tests.TestData;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -55,6 +56,24 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
+        public async Task GetAll_ReturnsOkWithBookings()
+        {
+            var testBookings = TestDataBuilder.CreateBookingResponseList();
+
+            _serviceMock
+                .Setup(s => s.GetAllAsync())
+                .ReturnsAsync(testBookings);
+
+            var actionResult = await _controller.GetAll();
+
+            Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
+
+            var okResult = actionResult.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+
+            var returnedBookings = okResult.Value as IEnumerable<GetBookingResponse>;
+            Assert.IsNotNull(returnedBookings);
+            Assert.AreEqual(testBookings.Count, returnedBookings.Count());
         public async Task GetById_ExistingId_ReturnsOk()
         {
             var fakeBooking = new GetBookingResponse(
