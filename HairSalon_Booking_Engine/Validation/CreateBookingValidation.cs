@@ -18,6 +18,10 @@ namespace HairSalon_Booking_Engine.Validation
             RuleFor(b => b.CustomerId)
                 .NotEmpty().WithMessage("You have to choose a CustomerId")
                 .GreaterThan(0).WithMessage("Invalid Customer ID.");
+
+            RuleFor(b => b.TreatmentIds)
+                .NotEmpty().WithMessage("You must select at least one treatment")
+                .Must(ids => ids.Count > 0).WithMessage("At least one treatment required");
         }
     }
 }

@@ -72,20 +72,6 @@ namespace HairSalon_Booking_Engine
             );
 
             // ----------------------------------------------------------------
-            // Products
-            // ----------------------------------------------------------------
-            //modelBuilder.Entity<Product>().HasData(
-            //    new Product { Id = 1, Name = "Hydrating Shampoo 250 ml",      Description = "Sulphate-free shampoo for dry or colour-treated hair.",   Brand = "Kérastase",  Price = 299m, Stock = 24 },
-            //    new Product { Id = 2, Name = "Repair Conditioner 200 ml",     Description = "Rich conditioner that rebuilds damaged hair fibre.",       Brand = "Kérastase",  Price = 319m, Stock = 18 },
-            //    new Product { Id = 3, Name = "Argan Oil Serum 100 ml",        Description = "Lightweight serum for shine and frizz control.",           Brand = "Moroccanoil", Price = 389m, Stock = 30 },
-            //    new Product { Id = 4, Name = "Volumising Mousse 200 ml",      Description = "Heat-activated mousse for lasting lift and body.",          Brand = "Redken",     Price = 229m, Stock = 15 },
-            //    new Product { Id = 5, Name = "Heat Protectant Spray 150 ml",  Description = "Protects up to 230 °C from heat styling damage.",          Brand = "Redken",     Price = 249m, Stock = 22 },
-            //    new Product { Id = 6, Name = "Purple Toning Shampoo 250 ml",  Description = "Neutralises brassy tones in blonde and grey hair.",        Brand = "Fanola",     Price = 179m, Stock = 20 },
-            //    new Product { Id = 7, Name = "Scalp Scrub 150 ml",            Description = "Exfoliating scrub that removes build-up and balances scalp.", Brand = "Davines", Price = 269m, Stock = 12 },
-            //    new Product { Id = 8, Name = "Defining Curl Cream 200 ml",    Description = "Nourishing cream that enhances and defines natural curls.", Brand = "Ouidad",    Price = 299m, Stock = 10 }
-            //);
-
-            // ----------------------------------------------------------------
             // Bookings
             // ----------------------------------------------------------------
             modelBuilder.Entity<Booking>().HasData(
@@ -116,48 +102,6 @@ namespace HairSalon_Booking_Engine
                     new { BookingsId = 5, TreatmentsId = 8 },  // Astrid – Deep Conditioning Mask
                     new { BookingsId = 6, TreatmentsId = 7 }   // Emma  – Keratin Treatment
                 ));
-
-            // ----------------------------------------------------------------
-            // Transactions
-            // ----------------------------------------------------------------
-            //modelBuilder.Entity<Transaction>().HasData(
-            //    new Transaction { Id = 1, Date = new DateTime(2025, 5, 12), CustomerId = 1, Total = 900m  },  // Cut + Mask
-            //    new Transaction { Id = 2, Date = new DateTime(2025, 5, 14), CustomerId = 2, Total = 578m  },  // Men's Cut + Argan Oil
-            //    new Transaction { Id = 3, Date = new DateTime(2025, 5, 15), CustomerId = 3, Total = 2050m },  // Balayage + Cut
-            //    new Transaction { Id = 4, Date = new DateTime(2025, 5, 19), CustomerId = 4, Total = 1249m },  // Full Colour + Heat Spray
-            //    new Transaction { Id = 5, Date = new DateTime(2025, 5, 21), CustomerId = 5, Total = 1400m }   // Full Highlights + Mask
-            //);
-
-            // ----------------------------------------------------------------
-            // Transaction ↔ Treatment (join table)
-            // ----------------------------------------------------------------
-            //modelBuilder.Entity<Transaction>()
-            //    .HasMany(t => t.Treatments)
-            //    .WithMany(tr => tr.Transactions)
-            //    .UsingEntity(j => j.HasData(
-            //        new { TransactionsId = 1, TreatmentsId = 1 },
-            //        new { TransactionsId = 1, TreatmentsId = 8 },
-            //        new { TransactionsId = 2, TreatmentsId = 2 },
-            //        new { TransactionsId = 3, TreatmentsId = 6 },
-            //        new { TransactionsId = 3, TreatmentsId = 1 },
-            //        new { TransactionsId = 4, TreatmentsId = 3 },
-            //        new { TransactionsId = 5, TreatmentsId = 5 },
-            //        new { TransactionsId = 5, TreatmentsId = 8 }
-            //    ));
-
-            // ----------------------------------------------------------------
-            // Transaction ↔ Product (join table)
-            // ----------------------------------------------------------------
-            //modelBuilder.Entity<Transaction>()
-            //    .HasMany(t => t.Products)
-            //    .WithMany(p => p.Transactions)
-            //    .UsingEntity(j => j.HasData(
-            //        new { TransactionsId = 2, ProductsId = 3 },  // Lucas bought Argan Oil
-            //        new { TransactionsId = 4, ProductsId = 5 },  // Oliver bought Heat Protectant
-            //        new { TransactionsId = 3, ProductsId = 6 },  // Maja bought Purple Toning Shampoo
-            //        new { TransactionsId = 5, ProductsId = 1 },  // Astrid bought Hydrating Shampoo
-            //        new { TransactionsId = 5, ProductsId = 2 }   // Astrid bought Repair Conditioner
-            //    ));
         }
     }
 }

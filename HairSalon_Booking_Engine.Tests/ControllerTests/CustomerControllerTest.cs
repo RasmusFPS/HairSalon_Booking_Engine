@@ -3,6 +3,7 @@ using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -79,4 +80,21 @@ public class CustomerControllerTest
         Assert.AreEqual(testCustomers.Count, returnedCustomers.Count());
 
     }   
+    public async Task GetById_ExistingId_ReturnsOk()
+    {
+   
+        var fakeCustomer = new GetCustomerResponse(1,"Anna", "Berg", "+ 46701234567", null);
+        _serviceMock
+            .Setup(s => s.GetByIdAsync(1))
+            .ReturnsAsync(fakeCustomer);
+
+        var actionResult = await _controller.GetById(1);
+
+        var result = actionResult.Result as OkObjectResult;
+
+        //if result isnt Null That means it returns Ok200 status code
+        Assert.IsNotNull(result);
+
+    }
+
 }

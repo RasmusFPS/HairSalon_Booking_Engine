@@ -11,6 +11,13 @@ namespace HairSalon_Booking_Engine.Models
 
         [Required]
         public DateTime StartTime { get; set; }
+
+        [Required]
+        public DateTime EndTime { get; set; }
+
+        [Required]
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
         public int StylistId { get; set; }
         public int CustomerId { get; set; }
 
@@ -18,10 +25,6 @@ namespace HairSalon_Booking_Engine.Models
         public Stylist Stylist { get; set; } = null!;
         public Customer Customer { get; set; } = null!;
         public ICollection<Treatment> Treatments { get; set; } = null!;
-
-        [Required]
-        public BookingStatus Status { get; set; } = BookingStatus.Pending;
-
     }
 
     public enum BookingStatus
@@ -32,6 +35,4 @@ namespace HairSalon_Booking_Engine.Models
         Cancelled,
         NoShow
     }
-
-    
 }

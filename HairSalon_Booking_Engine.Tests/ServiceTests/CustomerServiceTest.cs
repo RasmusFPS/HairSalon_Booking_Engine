@@ -116,9 +116,26 @@ public class CustomerServiceTest
 
         Assert.IsNotNull(result);
 
-        var savedCustomer = await ctx.Customers.FindAsync(result.Data.Id);
+        var savedCustomer = await ctx.Customers.FindAsync(result.Data!.Id);
         Assert.IsNotNull(savedCustomer);
     }
 
+    [TestMethod]
+    public async Task DeleteAsync_NonExistingId_ReturnsNotFound()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_NonExistingId_ReturnsNotFound));
+        var FakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
+
+        ctx.Customers.Add(FakeCustomer);
+        await ctx.SaveChangesAsync();
+
+        var service = new CustomerService(ctx);
+
+        var IdToDelete = await service.DeleteAsync(999);
+
+        Assert.IsFalse(IdToDelete.Success);
+
+        Assert.AreEqual(ServiceResultStatus.NotFound, IdToDelete.Status);
+    }
 
 }
