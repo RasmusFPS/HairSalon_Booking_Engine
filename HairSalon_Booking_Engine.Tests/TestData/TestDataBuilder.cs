@@ -131,20 +131,20 @@ namespace HairSalon_Booking_Engine.Tests.TestData
 
             return Enumerable.Range(1, count)
                 .Select(i => {
-                    // 1. Create a fake stylist for this booking
+                    //Fake data
                     var fakeStylist = new GetStylistResponse(i, $"Stylist{i}", "Johansson");
-                    // Note: Adjust the arguments above to match your actual GetStylistResponse constructor!
-
-                    // 2. Create a fake customer for this booking
                     var fakeCustomer = new GetCustomerResponse(i, $"Customer{i}", "Berg", $"+4670123456{i}", $"customer{i}@email.com");
+                    var fakeTreatments = new List<GetTreatmentResponse>();
 
-                    // 3. Construct the booking using the exact types from the tooltip
                     return new GetBookingResponse(
-                        i,                          // int Id
-                        DateTime.Now,               // DateTime CreatedAt
-                        DateTime.Now.AddDays(i),    // DateTime StartTime (spreads them out day by day)
-                        fakeStylist,                // GetStylistResponse Stylist
-                        fakeCustomer                // GetCustomerResponse Customer
+                        i,                          
+                        DateTime.Now,               
+                        DateTime.Now.AddDays(i),  
+                        DateTime.Now.AddDays(i).AddHours(1),
+                        BookingStatus.Confirmed,
+                        fakeStylist,                
+                        fakeCustomer,
+                        fakeTreatments
                     );
                 })
                 .ToList();
