@@ -79,7 +79,9 @@ public class CustomerControllerTest
         //Checks if the amount of customers the test got back matches the amount in the test customer list
         Assert.AreEqual(testCustomers.Count, returnedCustomers.Count());
 
-    }   
+    }
+
+    [TestMethod]
     public async Task GetById_ExistingId_ReturnsOk()
     {
    

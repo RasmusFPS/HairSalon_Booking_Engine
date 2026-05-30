@@ -75,6 +75,8 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             Assert.IsNotNull(returnedBookings);
             Assert.AreEqual(testBookings.Count, returnedBookings.Count());
         }
+
+        [TestMethod]
         public async Task GetById_ExistingId_ReturnsOk()
         {
             var fakeBooking = new GetBookingResponse(
