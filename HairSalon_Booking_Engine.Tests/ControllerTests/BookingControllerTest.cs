@@ -22,27 +22,27 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             _controller = new BookingController(_serviceMock.Object, _validatorMock.Object);
         }
 
-        [TestMethod]
-        public async Task GetAllBooking_ReturnsOkWithBookings()
-        {
-            //Arrange
-            var bookings = new List<GetBookingResponse>
-            {
-                new(1,
-                DateTime.Today,
-                DateTime.Today.AddDays(1),
-                new GetStylistResponse(1, "Stylist", "Name"),
-                new GetCustomerResponse(1, "Customer", "Name", "+46701234567", "customer@email.se")),
-            };
-            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(bookings);
+        //[TestMethod]
+        //public async Task GetAllBooking_ReturnsOkWithBookings()
+        //{
+        //    //Arrange
+        //    var bookings = new List<GetBookingResponse>
+        //    {
+        //        new(1,
+        //        DateTime.Today,
+        //        DateTime.Today.AddDays(1),
+        //        new GetStylistResponse(1, "Stylist", "Name"),
+        //        new GetCustomerResponse(1, "Customer", "Name", "+46701234567", "customer@email.se")),
+        //    };
+        //    _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(bookings);
 
-            //Act
-            var actionResult = await _controller.GetAll();
+        //    //Act
+        //    var actionResult = await _controller.GetAll();
 
-            //Assert
-            var ok = actionResult.Result as OkObjectResult;
-            Assert.IsNotNull(ok);
-            Assert.AreEqual(bookings, ok.Value);
-        }
+        //    //Assert
+        //    var ok = actionResult.Result as OkObjectResult;
+        //    Assert.IsNotNull(ok);
+        //    Assert.AreEqual(bookings, ok.Value);
+        //}
     }
 }

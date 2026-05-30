@@ -116,7 +116,7 @@ public class CustomerServiceTest
 
         Assert.IsNotNull(result);
 
-        var savedCustomer = await ctx.Customers.FindAsync(result.Data.Id);
+        var savedCustomer = await ctx.Customers.FindAsync(result.Data!.Id);
         Assert.IsNotNull(savedCustomer);
     }
 
