@@ -74,6 +74,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             var returnedBookings = okResult.Value as IEnumerable<GetBookingResponse>;
             Assert.IsNotNull(returnedBookings);
             Assert.AreEqual(testBookings.Count, returnedBookings.Count());
+        }
         public async Task GetById_ExistingId_ReturnsOk()
         {
             var fakeBooking = new GetBookingResponse(
