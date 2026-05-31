@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using HairSalon_Booking_Engine.Controllers.Extensions;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,10 @@ namespace HairSalon_Booking_Engine.Controllers
             }
 
             var result = await _bookingService.CreateAsync(request);
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
 
             return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
         }
@@ -65,7 +70,7 @@ namespace HairSalon_Booking_Engine.Controllers
 
             if (!result.Success)
             {
-                return NotFound($"Ingen bokning hittades med ID: {id}");
+                return result.ToActionResult();
             }
 
             return NoContent();
@@ -78,7 +83,7 @@ namespace HairSalon_Booking_Engine.Controllers
 
             if (!result.Success)
             {
-                return NotFound($"Ingen bokning hittades med ID: {id}");
+                return result.ToActionResult();
             }
 
             return NoContent();
