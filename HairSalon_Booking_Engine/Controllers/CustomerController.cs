@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using HairSalon_Booking_Engine.Controllers.Extensions;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +57,7 @@ namespace HairSalon_Booking_Engine.Controllers
             var result = await _customerService.CreateAsync(request);
             if (!result.Success)
             {
-                return BadRequest(result.ErrorMessage);
+                return result.ToActionResult();
             }
 
             return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
@@ -82,7 +83,7 @@ namespace HairSalon_Booking_Engine.Controllers
             var result = await _customerService.UpdateAsync(id, request);
             if (!result.Success)
             {
-                return ToErrorResponse(result);
+                return result.ToActionResult();
             }
 
             return NoContent();
@@ -95,21 +96,10 @@ namespace HairSalon_Booking_Engine.Controllers
 
             if (!result.Success)
             {
-                return ToErrorResponse(result);
+                return result.ToActionResult();
             }
             
             return NoContent();
-        }
-
-        // kanske bör flyttas om den ska användas inuti BookingService också
-        private ActionResult ToErrorResponse(ServiceResult result)
-        {
-            return result.Status switch
-            {
-                ServiceResultStatus.NotFound => NotFound(result.ErrorMessage),
-                ServiceResultStatus.ValidationError => BadRequest(result.ErrorMessage),
-                _ => BadRequest(result.ErrorMessage)
-            };
         }
     }
 }
