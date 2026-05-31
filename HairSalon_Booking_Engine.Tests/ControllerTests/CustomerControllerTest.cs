@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Results;
 using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
@@ -22,6 +23,28 @@ public class CustomerControllerTest
         _serviceMock = new Mock<ICustomerService>();
         _validatorMock = new Mock<IValidator<CreateCustomerRequest>>();
         _controller = new CustomerController(_serviceMock.Object, _validatorMock.Object);
+    }
+
+    [TestMethod]
+    public async Task Create_ValidRequest_ReturnsCreatedAtAction()
+    {
+        var request = new CreateCustomerRequest("Anna", "Berg", "+46701234567", null);
+        var createdCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+46701234567", null);
+
+        _validatorMock
+            .Setup(v => v.ValidateAsync(request))
+            .ReturnsAsync(new ValidationResult());
+
+        _serviceMock
+            .Setup(s => s.CreateAsync(request))
+            .ReturnsAsync(ServiceResult<GetCustomerResponse>.Ok(createdCustomer));
+
+        var actionResult = await _controller.Create(request);
+
+        Assert.IsInstanceOfType(actionResult, typeof(CreatedAtActionResult));
+        var createdResult = actionResult as CreatedAtActionResult;
+        Assert.IsNotNull(createdResult);
+        Assert.AreEqual(nameof(CustomerController.GetById), createdResult.ActionName);
     }
 
     [TestMethod]
