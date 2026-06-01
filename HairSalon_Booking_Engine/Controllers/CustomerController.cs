@@ -12,11 +12,16 @@ namespace HairSalon_Booking_Engine.Controllers
     {
         private readonly ICustomerService _customerService;
         private readonly IValidator<CreateCustomerRequest> _createCustomerValidator;
+        private readonly IValidator<UpdateCustomerRequest> _updateCustomerValidator;
 
-        public CustomerController(ICustomerService customerService, IValidator<CreateCustomerRequest> createCustomerValidator)
+        public CustomerController(
+            ICustomerService customerService, 
+            IValidator<CreateCustomerRequest> createCustomerValidator, 
+            IValidator<UpdateCustomerRequest> updateCustomerValidator)
         {
             _customerService = customerService;
             _createCustomerValidator = createCustomerValidator;
+            _updateCustomerValidator = updateCustomerValidator;
         }
 
         [HttpGet(Name = "GetAllCustomers")]
@@ -67,18 +72,18 @@ namespace HairSalon_Booking_Engine.Controllers
         [HttpPut("{id}", Name = "UpdateCustomer")]
         public async Task<ActionResult> Update(int id, UpdateCustomerRequest request)
         {
-            //var validationResult = await _createCustomerValidator.ValidateAsync(request);
+            var validationResult = await _updateCustomerValidator.ValidateAsync(request);
 
-            //if (!validationResult.IsValid)
-            //{
-            //    var errors = validationResult.Errors.Select(error => new
-            //    {
-            //        field = error.PropertyName,
-            //        message = error.ErrorMessage,
-            //    });
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(error => new
+                {
+                    field = error.PropertyName,
+                    message = error.ErrorMessage,
+                });
 
-            //    return BadRequest(errors);
-            //}
+                return BadRequest(errors);
+            }
 
             var result = await _customerService.UpdateAsync(id, request);
             if (!result.Success)

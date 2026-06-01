@@ -12,12 +12,16 @@ namespace HairSalon_Booking_Engine.Controllers
     {
         private readonly IBookingService _bookingService;
         private readonly IValidator<CreateBookingRequest> _createBookingValidator;
+        private readonly IValidator<UpdateBookingRequest> _updateBookingValidator;
 
-
-        public BookingController(IBookingService bookingService, IValidator<CreateBookingRequest> createBookingValidator)
+        public BookingController(
+            IBookingService bookingService, 
+            IValidator<CreateBookingRequest> createBookingValidator, 
+            IValidator<UpdateBookingRequest> updateBookingValidator)
         {
             _bookingService = bookingService;
             _createBookingValidator = createBookingValidator;
+            _updateBookingValidator = updateBookingValidator;
         }
 
         [HttpGet(Name = "GetAllBookings")]
@@ -66,6 +70,19 @@ namespace HairSalon_Booking_Engine.Controllers
         [HttpPut("{id}", Name = "UpdateBooking")]
         public async Task<ActionResult> Update(int id, UpdateBookingRequest request)
         {
+            var validationResult = await _updateBookingValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(error => new
+                {
+                    field = error.PropertyName,
+                    message = error.ErrorMessage,
+                });
+
+                return BadRequest(errors);
+            }
+
             var result = await _bookingService.UpdateAsync(id, request);
 
             if (!result.Success)
