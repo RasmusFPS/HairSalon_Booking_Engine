@@ -5,6 +5,8 @@ using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
+using HairSalon_Booking_Engine.Validation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -14,15 +16,15 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
     public sealed class BookingControllerTest
     {
         private Mock<IBookingService> _serviceMock = null!;
-        private Mock<IValidator<CreateBookingRequest>> _validatorMock = null!;
+        private IValidator<CreateBookingRequest> _validator = null!;
         private BookingController _controller = null!;
 
         [TestInitialize]
         public void setup()
         {
             _serviceMock = new Mock<IBookingService>();
-            _validatorMock = new Mock<IValidator<CreateBookingRequest>>();
-            _controller = new BookingController(_serviceMock.Object, _validatorMock.Object);
+            _validator = new CreateBookingValidation();
+            _controller = new BookingController(_serviceMock.Object, _validator);
         }
 
         [TestMethod]
@@ -126,10 +128,6 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
                     new(2, "Men's Cut", "Classic scissor or clipper cut.", 350m, 30)
                 });
 
-            _validatorMock
-                .Setup(v => v.ValidateAsync(request, default))
-                .ReturnsAsync(new ValidationResult());
-
             _serviceMock
                 .Setup(s => s.CreateAsync(request))
                 .ReturnsAsync(ServiceResult<GetBookingResponse>.Ok(createdBooking));
@@ -140,6 +138,42 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             var createdResult = actionResult as CreatedAtActionResult;
             Assert.IsNotNull(createdResult);
             Assert.AreEqual(nameof(CustomerController.GetById), createdResult.ActionName);
+        }
+
+        [TestMethod]
+        public async Task CreateAsync_InvalidRequest_ReturnsBadRequestWithErrors()
+        {
+            var invalidRequest = new CreateBookingRequest(DateTime.Now.AddDays(-1), 0, 0, []);
+
+            var actionResult = await _controller.Create(invalidRequest);
+
+            Assert.IsInstanceOfType(actionResult, typeof(BadRequestObjectResult));
+        }
+
+        [TestMethod]
+        public async Task UpdateAsync_ExistingBooking_ReturnsNoContent()
+        {
+            var request = new UpdateBookingRequest(DateTime.Now, 2, 3, [2, 3]);
+            _serviceMock
+                .Setup(s => s.UpdateAsync(1, request))
+                .ReturnsAsync(ServiceResult.Ok());
+
+            var actionResult = await _controller.Update(1, request);
+
+            Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
+        }
+
+        [TestMethod]
+        public async Task UpdateAsync_NonExistingBooking_ReturnsNotFound()
+        {
+            var request = new UpdateBookingRequest(DateTime.Now, 2, 3, [2, 3]);
+            _serviceMock
+                .Setup(s => s.UpdateAsync(999, request))
+                .ReturnsAsync(ServiceResult.NotFound("Ingen bokning hittades med ID: 999"));
+
+            var actionResult = await _controller.Update(999, request);
+
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
         }
 
         [TestMethod]
