@@ -26,27 +26,27 @@ public class CustomerControllerTest
         _controller = new CustomerController(_serviceMock.Object, _validatorMock.Object);
     }
 
-    //[TestMethod]
-    //public async Task Create_ValidRequest_ReturnsCreatedAtAction()
-    //{
-    //    var request = new CreateCustomerRequest("Anna", "Berg", "+46701234567", null);
-    //    var createdCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+46701234567", null);
+    [TestMethod]
+    public async Task Create_ValidRequest_ReturnsCreatedAtAction()
+    {
+        var request = new CreateCustomerRequest("Anna", "Berg", "+46701234567", null);
+        var createdCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+46701234567", null);
 
-    //    _validatorMock
-    //        .Setup(v => v.ValidateAsync(request))
-    //        .ReturnsAsync(new ValidationResult());
+        _validatorMock
+            .Setup(v => v.ValidateAsync(request, default))
+                .ReturnsAsync(new ValidationResult());
 
-    //    _serviceMock
-    //        .Setup(s => s.CreateAsync(request))
-    //        .ReturnsAsync(ServiceResult<GetCustomerResponse>.Ok(createdCustomer));
+        _serviceMock
+            .Setup(s => s.CreateAsync(request))
+            .ReturnsAsync(ServiceResult<GetCustomerResponse>.Ok(createdCustomer));
 
-    //    var actionResult = await _controller.Create(request);
+        var actionResult = await _controller.Create(request);
 
-    //    Assert.IsInstanceOfType(actionResult, typeof(CreatedAtActionResult));
-    //    var createdResult = actionResult as CreatedAtActionResult;
-    //    Assert.IsNotNull(createdResult);
-    //    Assert.AreEqual(nameof(CustomerController.GetById), createdResult.ActionName);
-    //}
+        Assert.IsInstanceOfType(actionResult, typeof(CreatedAtActionResult));
+        var createdResult = actionResult as CreatedAtActionResult;
+        Assert.IsNotNull(createdResult);
+        Assert.AreEqual(nameof(CustomerController.GetById), createdResult.ActionName);
+    }
 
     [TestMethod]
     public async Task Update_ExistingCustomer_ReturnsNoContent()
@@ -105,8 +105,8 @@ public class CustomerControllerTest
     [TestMethod]
     public async Task GetById_ExistingId_ReturnsOk()
     {
-   
-        var fakeCustomer = new GetCustomerResponse(1,"Anna", "Berg", "+ 46701234567", null);
+
+        var fakeCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+ 46701234567", null);
         _serviceMock
             .Setup(s => s.GetByIdAsync(1))
             .ReturnsAsync(fakeCustomer);
