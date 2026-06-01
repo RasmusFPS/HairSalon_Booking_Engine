@@ -3,12 +3,15 @@ using HairSalon_Booking_Engine.Models.DTOs;
 
 namespace HairSalon_Booking_Engine.Validation
 {
-    public class CreateBookingValidation : AbstractValidator<CreateBookingRequest>
+    /// <summary>
+    /// Validator for creating a new booking
+    /// </summary>
+    public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
     {
-        public CreateBookingValidation()
+        public CreateBookingValidator()
         {
             RuleFor(b => b.StartTime)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Start time is required")
                 .GreaterThan(DateTime.Now).WithMessage("You cannot make a booking in the past");
 
             RuleFor(b => b.StylistId)

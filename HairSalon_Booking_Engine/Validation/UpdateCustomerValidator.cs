@@ -1,13 +1,14 @@
 ﻿using FluentValidation;
+using HairSalon_Booking_Engine.Models.DTOs;
 
-namespace HairSalon_Booking_Engine.Models.DTOs.Validation
+namespace HairSalon_Booking_Engine.Validation
 {
     /// <summary>
-    /// Validator for creating a new customer
+    /// Validator for updating an existing customer
     /// </summary>
-    public class CreateCustomerValidator : AbstractValidator<CreateCustomerRequest>
+    public class UpdateCustomerValidator : AbstractValidator<UpdateCustomerRequest>
     {
-        public CreateCustomerValidator()
+        public UpdateCustomerValidator()
         {
             RuleFor(c => c.FirstName)
                 .NotEmpty().WithMessage("First Name is required")

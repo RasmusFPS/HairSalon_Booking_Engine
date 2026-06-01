@@ -1,12 +1,10 @@
 using FluentValidation;
-using FluentValidation.Results;
 using HairSalon_Booking_Engine.Controllers;
-using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Models.DTOs.Validation;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
-using Microsoft.AspNetCore.Http.HttpResults;
+using HairSalon_Booking_Engine.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -16,15 +14,17 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
     public class CustomerControllerTest
     {
         private Mock<ICustomerService> _serviceMock = null!;
-        private IValidator<CreateCustomerRequest> _validator = null!;
+        private IValidator<CreateCustomerRequest> _createValidator = null!;
+        private IValidator<UpdateCustomerRequest> _updateValidator = null!;
         private CustomerController _controller = null!;
 
         [TestInitialize]
         public void Setup()
         {
             _serviceMock = new Mock<ICustomerService>();
-            _validator = new CreateCustomerValidator();
-            _controller = new CustomerController(_serviceMock.Object, _validator);
+            _createValidator = new CreateCustomerValidator();
+            _updateValidator = new UpdateCustomerValidator();
+            _controller = new CustomerController(_serviceMock.Object, _createValidator, _updateValidator);
         }
 
         [TestMethod]
