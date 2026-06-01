@@ -138,4 +138,25 @@ public class CustomerServiceTest
         Assert.AreEqual(ServiceResultStatus.NotFound, IdToDelete.Status);
     }
 
+    [TestMethod]
+    public async Task DeleteAsync_ExistingCustomer_RemovesFromDatabase()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_ExistingCustomer_RemovesFromDatabase));
+        var fakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
+
+        ctx.Customers.Add(fakeCustomer);
+        await ctx.SaveChangesAsync();
+
+        var service = new CustomerService(ctx);
+
+        var deleteResult = await service.DeleteAsync(fakeCustomer.Id);
+
+        Assert.IsNotNull(deleteResult);
+        Assert.IsTrue(deleteResult.Success);
+
+        var result = await service.GetByIdAsync(fakeCustomer.Id);
+
+        Assert.IsNull(result);
+    }
+
 }

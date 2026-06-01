@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using HairSalon_Booking_Engine.Controllers;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
@@ -33,7 +34,7 @@ public class CustomerControllerTest
 
         _validatorMock
             .Setup(v => v.ValidateAsync(request, default))
-            .ReturnsAsync(new ValidationResult());
+                .ReturnsAsync(new ValidationResult());
 
         _serviceMock
             .Setup(s => s.CreateAsync(request))
@@ -104,8 +105,8 @@ public class CustomerControllerTest
     [TestMethod]
     public async Task GetById_ExistingId_ReturnsOk()
     {
-   
-        var fakeCustomer = new GetCustomerResponse(1,"Anna", "Berg", "+ 46701234567", null);
+
+        var fakeCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+ 46701234567", null);
         _serviceMock
             .Setup(s => s.GetByIdAsync(1))
             .ReturnsAsync(fakeCustomer);
@@ -132,4 +133,26 @@ public class CustomerControllerTest
 
         Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
     }
+
+    [TestMethod]
+    public async Task GetAllAsync_ReturnsAllCustomers()
+    {
+        var fakeCustomer = new List<GetCustomerResponse>{
+            new GetCustomerResponse(1,"Anna", "Berg", "+ 46701234567", null),
+            new GetCustomerResponse(2,"Bengt", "Berg", "+ 46201234567", null)
+
+        };
+
+        _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(fakeCustomer);
+
+        var actionResult = await _controller.GetAll();
+
+        var ok = actionResult.Result as OkObjectResult;
+
+        var returnedCustomers = ok.Value as IEnumerable<GetCustomerResponse>;
+        Assert.IsNotNull(returnedCustomers);
+        Assert.AreEqual(2, returnedCustomers.Count());
+    }
+
 }
+
