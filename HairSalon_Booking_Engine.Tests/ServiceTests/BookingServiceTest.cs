@@ -94,4 +94,33 @@ public class BookingServiceTest
         Assert.IsNull(result);
 
     }
+
+    [TestMethod]
+    public async Task CreateAsync_ReturnsCreatedBookingData()
+    {
+        var fakeTreatmentsId = new List<int> { 1, 2 };
+
+        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedBookingData));
+
+        await ctx.Customers.AddAsync(new Customer { Id = 1, FirstName = "Test", LastName = "Customer", Email = "c@test.com", Phone = "000" });
+        await ctx.Stylist.AddAsync(new Stylist { Id = 1, FirstName = "Test", LastName = "Stylist" });
+        await ctx.Treatments.AddAsync(new Treatment { Id = 1, Name = "Treatment 1" });
+        await ctx.Treatments.AddAsync(new Treatment { Id = 2, Name = "Treatment 2" });
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
+
+        var request = new CreateBookingRequest(
+            StartTime: DateTime.Now.AddDays(1),
+            StylistId: 1,
+            CustomerId: 1,
+            TreatmentIds: fakeTreatmentsId
+        );
+
+        var result = await service.CreateAsync(request);
+        Assert.IsNotNull(result);
+
+        var savedBooking = await ctx.Bookings.FindAsync(result.Data!.Id);
+        Assert.IsNotNull(savedBooking);
+    }
 }
