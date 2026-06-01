@@ -153,6 +153,20 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
+        public async Task DeleteById_NonExistingCustomer_ReturnsNotFound()
+        {
+            int nonExistingId = 999;
+
+            _serviceMock
+                .Setup(s => s.DeleteAsync(nonExistingId))
+                .ReturnsAsync(new ServiceResult(ServiceResultStatus.NotFound));
+
+            var actionResult = await _controller.DeleteByID(nonExistingId);
+
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
+        }
+
+        [TestMethod]
         public async Task GetAllAsync_ReturnsAllCustomers()
         {
             var fakeCustomer = new List<GetCustomerResponse>{
