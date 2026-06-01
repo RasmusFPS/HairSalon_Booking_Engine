@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using HairSalon_Booking_Engine.Controllers;
-using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
@@ -28,40 +27,9 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task GetAllBooking_ReturnsOkWithBookings()
-        {
-            //Arrange
-            var bookings = new List<GetBookingResponse>
-            {
-                new(1,
-                    DateTime.Today,
-                    DateTime.Today.AddDays(1),
-                    DateTime.Today.AddDays(1).AddHours(1),
-                    BookingStatus.Pending,
-                    new GetStylistResponse(1, "Stylist", "Name"),
-                    new GetCustomerResponse(1, "Customer", "Name", "+46701234567", "customer@email.se"),
-                    new List<GetTreatmentResponse>()
-                    {
-                        new GetTreatmentResponse(1, "haircut", "haircut", 120, 120)
-                    }
-                )
-
-            };
-            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(bookings);
-
-            //Act
-            var actionResult = await _controller.GetAll();
-
-            //Assert
-            var ok = actionResult.Result as OkObjectResult;
-            Assert.IsNotNull(ok);
-            Assert.AreEqual(bookings, ok.Value);
-        }
-
-        [TestMethod]
         public async Task GetAll_ReturnsOkWithBookings()
         {
-            var testBookings = TestDataBuilder.CreateBookingResponseList();
+            var testBookings = TestDataBuilder.CreateGetBookingResponseList();
 
             _serviceMock
                 .Setup(s => s.GetAllAsync())
@@ -82,23 +50,11 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         [TestMethod]
         public async Task GetById_ExistingId_ReturnsOk()
         {
-            var fakeBooking = new GetBookingResponse(
-                1,
-                DateTime.Today,
-                DateTime.Today.AddDays(1),
-                DateTime.Today.AddDays(1).AddHours(1),
-                BookingStatus.Pending,
-                new GetStylistResponse(1, "Stylist", "Name"),
-                new GetCustomerResponse(1, "Customer", "Name", "+46701234567", "customer@email.se"),
-                new List<GetTreatmentResponse>()
-                {
-                    new GetTreatmentResponse(1, "haircut", "haircut", 120, 120)
-                }
-            );
+            var booking = TestDataBuilder.CreateGetBookingResponse();
 
             _serviceMock
                 .Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(fakeBooking);
+                .ReturnsAsync(booking);
 
             var actionResult = await _controller.GetById(1);
 
@@ -106,7 +62,6 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
 
             //if result isnt Null That means it returns Ok200 status code
             Assert.IsNotNull(result);
-
         }
 
         [TestMethod]
@@ -114,19 +69,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         {
             var bookingTime = DateTime.Now;
             var request = new CreateBookingRequest(bookingTime, 1, 1, [1, 2]);
-            var createdBooking = new GetBookingResponse(
-                Id: 1, 
-                CreatedAt: bookingTime, 
-                StartTime: bookingTime, 
-                EndTime: bookingTime.AddMinutes(90), 
-                Status: BookingStatus.Pending, 
-                Stylist: new(1, "Sofia", "Andersson"), 
-                Customer: new(1, "Emma", "Johansson", "070-123 45 67", "emma.johansson@example.com"), 
-                Treatments: new List<GetTreatmentResponse>()
-                {
-                    new(1, "Women's Cut & Blowdry", "Precision cut with a full blowdry finish.", 650m, 60),
-                    new(2, "Men's Cut", "Classic scissor or clipper cut.", 350m, 30)
-                });
+            var createdBooking = TestDataBuilder.CreateGetBookingResponse();
 
             _serviceMock
                 .Setup(s => s.CreateAsync(request))
@@ -179,13 +122,11 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         [TestMethod]
         public async Task DeleteByID_ExistingBooking_ReturnsNoContent()
         {
-            int idToDelete = 1;
-
             _serviceMock
-                .Setup(s => s.DeleteAsync(idToDelete))
+                .Setup(s => s.DeleteAsync(1))
                 .ReturnsAsync(new ServiceResult(ServiceResultStatus.Success));
 
-            var actionResult = await _controller.DeleteByID(idToDelete);
+            var actionResult = await _controller.DeleteByID(1);
 
             Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
         }
@@ -193,13 +134,11 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         [TestMethod]
         public async Task DeleteById_NonExistingBooking_ReturnsNotFound()
         {
-            int nonExistingId = 999;
-
             _serviceMock
-                .Setup(s => s.DeleteAsync(nonExistingId))
+                .Setup(s => s.DeleteAsync(999))
                 .ReturnsAsync(new ServiceResult(ServiceResultStatus.NotFound));
 
-            var actionResult = await _controller.DeleteByID(nonExistingId);
+            var actionResult = await _controller.DeleteByID(999);
 
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
         }

@@ -96,7 +96,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         public async Task GetAll_ReturnsOkWithCustomers()
         {
             //Creates a list of test customers
-            var testCustomers = TestDataBuilder.CreateCustomerResponseList();
+            var testCustomers = TestDataBuilder.CreateGetCustomerResponseList();
 
             // Tells the mock to return our list
             _serviceMock
@@ -124,7 +124,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         [TestMethod]
         public async Task GetById_ExistingId_ReturnsOk()
         {
-            var fakeCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+ 46701234567", null);
+            var fakeCustomer = TestDataBuilder.CreateGetCustomerResponse();
 
             _serviceMock
                 .Setup(s => s.GetByIdAsync(1))
@@ -166,6 +166,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
         }
 
+        // är inte detta samma metod som finns lite längre upp?
         [TestMethod]
         public async Task GetAllAsync_ReturnsAllCustomers()
         {
