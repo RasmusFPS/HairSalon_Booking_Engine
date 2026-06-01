@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using HairSalon_Booking_Engine.Controllers;
 using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
@@ -104,6 +105,41 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             //if result isnt Null That means it returns Ok200 status code
             Assert.IsNotNull(result);
 
+        }
+
+        [TestMethod]
+        public async Task Create_ValidRequest_ReturnsCreatedAtAction()
+        {
+            var bookingTime = DateTime.Now;
+            var request = new CreateBookingRequest(bookingTime, 1, 1, [1, 2]);
+            var createdBooking = new GetBookingResponse(
+                Id: 1, 
+                CreatedAt: bookingTime, 
+                StartTime: bookingTime, 
+                EndTime: bookingTime.AddMinutes(90), 
+                Status: BookingStatus.Pending, 
+                Stylist: new(1, "Sofia", "Andersson"), 
+                Customer: new(1, "Emma", "Johansson", "070-123 45 67", "emma.johansson@example.com"), 
+                Treatments: new List<GetTreatmentResponse>()
+                {
+                    new(1, "Women's Cut & Blowdry", "Precision cut with a full blowdry finish.", 650m, 60),
+                    new(2, "Men's Cut", "Classic scissor or clipper cut.", 350m, 30)
+                });
+
+            _validatorMock
+                .Setup(v => v.ValidateAsync(request, default))
+                .ReturnsAsync(new ValidationResult());
+
+            _serviceMock
+                .Setup(s => s.CreateAsync(request))
+                .ReturnsAsync(ServiceResult<GetBookingResponse>.Ok(createdBooking));
+
+            var actionResult = await _controller.Create(request);
+
+            Assert.IsInstanceOfType(actionResult, typeof(CreatedAtActionResult));
+            var createdResult = actionResult as CreatedAtActionResult;
+            Assert.IsNotNull(createdResult);
+            Assert.AreEqual(nameof(CustomerController.GetById), createdResult.ActionName);
         }
 
         [TestMethod]

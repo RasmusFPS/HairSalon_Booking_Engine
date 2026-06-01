@@ -32,7 +32,7 @@ public class CustomerControllerTest
         var createdCustomer = new GetCustomerResponse(1, "Anna", "Berg", "+46701234567", null);
 
         _validatorMock
-            .Setup(v => v.ValidateAsync(request))
+            .Setup(v => v.ValidateAsync(request, default))
             .ReturnsAsync(new ValidationResult());
 
         _serviceMock

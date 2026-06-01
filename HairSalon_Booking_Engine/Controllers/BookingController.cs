@@ -39,7 +39,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         [HttpPost(Name = "CreateBooking")]
-        public async Task<ActionResult> CreateBooking(CreateBookingRequest request)
+        public async Task<ActionResult> Create(CreateBookingRequest request)
         {
             var validationResult = await _createBookingValidator.ValidateAsync(request);
 
