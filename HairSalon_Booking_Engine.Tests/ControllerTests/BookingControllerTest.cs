@@ -155,5 +155,19 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
 
             Assert.IsInstanceOfType(actionResult, typeof(NoContentResult));
         }
+
+        [TestMethod]
+        public async Task DeleteById_NonExistingBooking_ReturnsNotFound()
+        {
+            int nonExistingId = 999;
+
+            _serviceMock
+                .Setup(s => s.DeleteAsync(nonExistingId))
+                .ReturnsAsync(new ServiceResult(ServiceResultStatus.NotFound));
+
+            var actionResult = await _controller.DeleteByID(nonExistingId);
+
+            Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
+        }
     }
 }
