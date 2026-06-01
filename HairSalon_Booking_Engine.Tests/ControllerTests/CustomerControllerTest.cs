@@ -184,5 +184,20 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             Assert.IsNotNull(returnedCustomers);
             Assert.AreEqual(2, returnedCustomers.Count());
         }
+
+        [TestMethod]
+        public async Task GetById_NonExistingId_ReturnsNotFound()
+        {
+            _serviceMock
+                .Setup(s => s.GetByIdAsync(999))       
+                .ReturnsAsync((GetCustomerResponse?)null);
+            ;
+
+            var actionResult = await _controller.GetById(9999);
+
+            var result = actionResult.Result;
+
+            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+        }
     }
 }
