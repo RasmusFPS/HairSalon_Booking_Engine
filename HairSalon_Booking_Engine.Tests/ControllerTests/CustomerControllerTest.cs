@@ -28,6 +28,66 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
+        public async Task GetAll_ReturnsOkWithCustomers()
+        {
+            //Creates a list of test customers
+            var testCustomers = TestDataBuilder.CreateGetCustomerResponseList();
+
+            // Tells the mock to return our list
+            _serviceMock
+                .Setup(s => s.GetAllAsync())
+                .ReturnsAsync(testCustomers);
+
+            var actionResult = await _controller.GetAll();
+
+            // Checks if the controller returned a 200 ok status code
+            Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
+
+            // Converts result into OkObjectResult
+            var okResult = actionResult.Result as OkObjectResult;
+            // Checks if the conversion worked
+            Assert.IsNotNull(okResult);
+
+            // Gets the data in okResult
+            var returnedCustomers = okResult.Value as IEnumerable<GetCustomerResponse>;
+            //Fail safe
+            Assert.IsNotNull(returnedCustomers);
+            //Checks if the amount of customers the test got back matches the amount in the test customer list
+            Assert.AreEqual(testCustomers.Count, returnedCustomers.Count());
+        }
+
+        [TestMethod]
+        public async Task GetById_ExistingId_ReturnsOk()
+        {
+            var fakeCustomer = TestDataBuilder.CreateGetCustomerResponse();
+
+            _serviceMock
+                .Setup(s => s.GetByIdAsync(1))
+                .ReturnsAsync(fakeCustomer);
+
+            var actionResult = await _controller.GetById(1);
+
+            var result = actionResult.Result as OkObjectResult;
+
+            //if result isnt Null That means it returns Ok200 status code
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetById_NonExistingId_ReturnsNotFound()
+        {
+            _serviceMock
+                .Setup(s => s.GetByIdAsync(999))
+                .ReturnsAsync((GetCustomerResponse?)null);
+
+            var actionResult = await _controller.GetById(999);
+
+            var result = actionResult.Result;
+
+            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+        }
+
+        [TestMethod]
         [DataRow("Anna", "Berg", "+46701234567", null)] // Valid data
         [DataRow("Jo", "Smith", "+1234567890", "jo@example.com")]  // Minimum length names
         [DataRow("Jean-Pierre", "O'Brien", "+358912345678", "test@email.com")]  // Special chars in names
@@ -93,52 +153,6 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task GetAll_ReturnsOkWithCustomers()
-        {
-            //Creates a list of test customers
-            var testCustomers = TestDataBuilder.CreateGetCustomerResponseList();
-
-            // Tells the mock to return our list
-            _serviceMock
-                .Setup(s => s.GetAllAsync())
-                .ReturnsAsync(testCustomers);
-
-            var actionResult = await _controller.GetAll();
-
-            // Checks if the controller returned a 200 ok status code
-            Assert.IsInstanceOfType(actionResult.Result, typeof(OkObjectResult));
-
-            // Converts result into OkObjectResult
-            var okResult = actionResult.Result as OkObjectResult;
-            // Checks if the conversion worked
-            Assert.IsNotNull(okResult);
-
-            // Gets the data in okResult
-            var returnedCustomers = okResult.Value as IEnumerable<GetCustomerResponse>;
-            //Fail safe
-            Assert.IsNotNull(returnedCustomers);
-            //Checks if the amount of customers the test got back matches the amount in the test customer list
-            Assert.AreEqual(testCustomers.Count, returnedCustomers.Count());
-        }
-
-        [TestMethod]
-        public async Task GetById_ExistingId_ReturnsOk()
-        {
-            var fakeCustomer = TestDataBuilder.CreateGetCustomerResponse();
-
-            _serviceMock
-                .Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(fakeCustomer);
-
-            var actionResult = await _controller.GetById(1);
-
-            var result = actionResult.Result as OkObjectResult;
-
-            //if result isnt Null That means it returns Ok200 status code
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
         public async Task DeleteById_ExistingCustomer_ReturnsNoContent()
         {
             int idToDelete = 1;
@@ -164,41 +178,6 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             var actionResult = await _controller.DeleteByID(nonExistingId);
 
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
-        }
-
-        // är inte detta samma metod som finns lite längre upp?
-        [TestMethod]
-        public async Task GetAllAsync_ReturnsAllCustomers()
-        {
-            var fakeCustomer = new List<GetCustomerResponse>{
-                new GetCustomerResponse(1,"Anna", "Berg", "+ 46701234567", null),
-                new GetCustomerResponse(2,"Bengt", "Berg", "+ 46201234567", null)
-            };
-
-            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(fakeCustomer);
-
-            var actionResult = await _controller.GetAll();
-
-            var ok = actionResult.Result as OkObjectResult;
-
-            var returnedCustomers = ok.Value as IEnumerable<GetCustomerResponse>;
-            Assert.IsNotNull(returnedCustomers);
-            Assert.AreEqual(2, returnedCustomers.Count());
-        }
-
-        [TestMethod]
-        public async Task GetById_NonExistingId_ReturnsNotFound()
-        {
-            _serviceMock
-                .Setup(s => s.GetByIdAsync(999))       
-                .ReturnsAsync((GetCustomerResponse?)null);
-            ;
-
-            var actionResult = await _controller.GetById(9999);
-
-            var result = actionResult.Result;
-
-            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
     }
 }
