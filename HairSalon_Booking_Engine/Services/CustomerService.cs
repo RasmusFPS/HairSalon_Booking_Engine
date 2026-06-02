@@ -1,4 +1,5 @@
-﻿using HairSalon_Booking_Engine.Models;
+﻿using HairSalon_Booking_Engine.Mappings;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,19 +16,19 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<IEnumerable<GetCustomerResponse>> GetAllAsync()
         {
-            return await _ctx.Customers
+            return (await _ctx.Customers
                 .AsNoTracking()
-                .Select(c => new GetCustomerResponse(c.Id, c.FirstName, c.LastName, c.Phone, c.Email))
-                .ToListAsync();
+                .ToListAsync())
+                .ToGetCustomerResponseList();
         }
 
         public async Task<GetCustomerResponse?> GetByIdAsync(int id)
         {
-            return await _ctx.Customers
+            var customer = await _ctx.Customers
                 .AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new GetCustomerResponse(c.Id, c.FirstName, c.LastName, c.Phone, c.Email))
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            return customer?.ToGetCustomerResponse();
         }
 
         public async Task<ServiceResult<GetCustomerResponse>> CreateAsync(CreateCustomerRequest request)
@@ -43,13 +44,7 @@ namespace HairSalon_Booking_Engine.Services
             await _ctx.Customers.AddAsync(customer);
             await _ctx.SaveChangesAsync();
 
-            var created = new GetCustomerResponse(
-                customer.Id, 
-                customer.FirstName, 
-                customer.LastName, 
-                customer.Phone, 
-                customer.Email);
-
+            var created = customer.ToGetCustomerResponse();
             return ServiceResult<GetCustomerResponse>.Ok(created);
         }
 
