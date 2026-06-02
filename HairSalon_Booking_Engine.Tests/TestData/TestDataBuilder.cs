@@ -55,60 +55,49 @@ namespace HairSalon_Booking_Engine.Tests.TestData
             StylistId = stylistId
         };
 
-        /// <summary>
-        /// Creates a collection of customers with unique IDs and email addresses.
-        /// </summary>
-        /// <param name="count">Number of customers to create. Must be positive.</param>
-        /// <exception cref="ArgumentException">Thrown when count is less than 1.</exception>
-        public static List<Customer> CreateCustomerList(int count = 3)
+        public static GetCustomerResponse CreateGetCustomerResponse(int id = 1)
         {
-            if (count < 1)
-                throw new ArgumentException("Count must be at least 1", nameof(count));
-
-            return Enumerable.Range(1, count)
-                .Select(i =>
-                {
-                    var customer = CreateCustomer(i);
-                    customer.FirstName = $"Customer{i}";
-                    customer.Email = $"customer{i}@email.com";
-                    return customer;
-                })
-                .ToList();
+            return new GetCustomerResponse(
+                id, "Anna", "Johansson", "+46701234567", "anna.johansson@email.com");
         }
 
-        /// <summary>
-        /// Creates a collection of bookings with unique IDs and relationships.
-        /// <param name="count">Number of bookings to create. must be positive.</param>>
-        /// <exception cref="ArgumentException">Thrown when count is less than 1.</exception>
-        /// </summary>
-        public static List<Booking> CreateBookingList(int count = 3)
+        public static GetStylistResponse CreateGetStylistResponse(int id = 1)
         {
-            if (count < 1)
-                throw new ArgumentException("Count must be at least 1", nameof(count));
-
-            return Enumerable.Range(1, count)
-                .Select(i => CreateBooking(id: i, stylistId: (i % 3) + 1, customerId: i))
-                .ToList();
+            return new GetStylistResponse(id, "Erik", "Lindgren");
         }
 
-        /// <summary>
-        /// Creates a collection of schedules with unique IDs and relationships
-        /// </summary>
-        /// <param name="count">Number of schedules to create. must be positive.</param>
-        /// <param name="stylistId">Id of the stylist tied to this schedule.</param>
-        /// <exception cref="ArgumentException">Thrown when count is less than 1.</exception>
-        /// <returns></returns>
-        public static List<Schedule> CreateScheduleList(int count = 3, int stylistId = 1)
+        public static GetTreatmentResponse CreateGetTreatmentResponse(int id = 1)
         {
-            if (count < 1)
-                throw new ArgumentException("Count must be at least 1", nameof(count));
-
-            return Enumerable.Range(1, count)
-                .Select(i => CreateSchedule(id: i, stylistId: stylistId))
-                .ToList();
+            return new GetTreatmentResponse(id, "Haircut", "Classic haircut", 350.00m, 45);
         }
 
-        public static List<GetCustomerResponse> CreateCustomerResponseList(int count = 3)
+        public static GetBookingResponse CreateGetBookingResponse(int id = 1)
+        {
+            return new GetBookingResponse(
+                id,
+                DateTime.Now,
+                DateTime.Now,
+                DateTime.Now.AddDays(1),
+                BookingStatus.Pending,
+                new(1, "Erik", "Lindgren"),
+                new(1, "Anna", "Johansson", "+46701234567", "anna.johansson@email.com"),
+                new List<GetTreatmentResponse>()
+            );
+        }
+
+        public static GetScheduleResponse CreateGetScheduleResponse(int id = 1)
+        {
+            return new GetScheduleResponse(
+                id, 
+                DateTime.Now, 
+                DateTime.Now.AddMinutes(60), 
+                true, 
+                null, 
+                new GetStylistResponse(1, "Erik", "Lindgren")
+            );
+        }
+
+        public static List<GetCustomerResponse> CreateGetCustomerResponseList(int count = 3)
         {
             if (count < 1)
                 throw new ArgumentException("Count must be at least 1", nameof(count));
@@ -124,7 +113,7 @@ namespace HairSalon_Booking_Engine.Tests.TestData
                 .ToList();
         }
 
-        public static List<GetBookingResponse> CreateBookingResponseList(int count = 3)
+        public static List<GetBookingResponse> CreateGetBookingResponseList(int count = 3)
         {
             if (count < 1)
                 throw new ArgumentException("Count must be at least 1", nameof(count));
