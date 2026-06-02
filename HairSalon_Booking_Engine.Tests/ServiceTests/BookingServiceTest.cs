@@ -13,6 +13,13 @@ public class BookingServiceTest
     {
         //Arrange
         await using var ctx = DbContextFactory.Create(nameof(GetAllAsync_ReturnsCorrectBookings));
+
+        var customer = TestDataBuilder.CreateCustomer();
+        var stylist = TestDataBuilder.CreateStylist();
+
+        await ctx.Customers.AddAsync(customer);
+        await ctx.Stylist.AddAsync(stylist);
+
         var bookings = TestDataBuilder.CreateBookingList();
 
         foreach (var booking in bookings)
