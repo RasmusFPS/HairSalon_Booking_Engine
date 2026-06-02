@@ -140,16 +140,27 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<ServiceResult> UpdateAsync(int id, UpdateBookingRequest request)
         {
-            var booking = await _ctx.Bookings.FindAsync(id);
+            var booking = await _ctx.Bookings
+                .Include(b => b.Treatments)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (booking is null)
             {
                 return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
             }
 
-            if (booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.Cancelled)
+            if (booking.Status is BookingStatus.Completed or BookingStatus.Cancelled)
             {
                 return ServiceResult.ValidationError("Kan inte uppdatera klarmarkerad eller avbokad bokning");
+            }
+
+            var hasConflict = await _ctx.Bookings
+                .Where(b => b.Id != id && b.StylistId == request.StylistId && b.Status != BookingStatus.Cancelled)
+                .AnyAsync(b => request.StartTime < b.EndTime && request.StartTime.AddHours(1) > b.StartTime);
+
+            if (hasConflict)
+            {
+                return ServiceResult.ValidationError("Frisörsalongen är redan bokad för denna tid");
             }
 
             // räkna om sluttiden på bokningen om treatments har skickats in
@@ -164,12 +175,21 @@ namespace HairSalon_Booking_Engine.Services
                     return ServiceResult.ValidationError("En eller flera behandlingar kunde inte hittas");
                 }
 
-                var totalDurationMin = treatments.Sum(t => t.DurationMin);
-                booking.EndTime = request.StartTime.AddMinutes(totalDurationMin);
-                booking.Treatments = treatments;
+                // töm alla treatments och fyll på med de nya om de finns
+                booking.Treatments.Clear();
+                foreach (var treatment in treatments)
+                {
+                    booking.Treatments.Add(treatment);
+                }
+            }
+
+            if (!booking.Treatments.Any())
+            {
+                return ServiceResult.ValidationError("Bokningen måste innehålla minst en behandling");
             }
 
             booking.StartTime = request.StartTime;
+            booking.EndTime = request.StartTime.AddMinutes(booking.Treatments.Sum(t => t.DurationMin));
             booking.StylistId = request.StylistId;
             booking.CustomerId = request.CustomerId;
 
@@ -228,10 +248,5 @@ namespace HairSalon_Booking_Engine.Services
 
             return ServiceResult<GetAvailableTimesResponse>.Ok(response);
         }
-
-
-
     }
-
 }
-
