@@ -65,6 +65,20 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
+        public async Task GetById_NonExistingId_ReturnsNotFound()
+        {
+            _serviceMock
+                .Setup(s => s.GetByIdAsync(9999))
+                .ReturnsAsync((GetBookingResponse?)null);
+
+            var actionResult = await _controller.GetById(9999);
+
+            var result = actionResult.Result;
+
+            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+        }
+
+        [TestMethod]
         public async Task Create_ValidRequest_ReturnsCreatedAtAction()
         {
             var bookingTime = DateTime.Now;
@@ -84,7 +98,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task CreateAsync_InvalidRequest_ReturnsBadRequestWithErrors()
+        public async Task Create_InvalidRequest_ReturnsBadRequestWithErrors()
         {
             var invalidRequest = new CreateBookingRequest(DateTime.Now.AddDays(-1), 0, 0, []);
 
@@ -94,7 +108,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task UpdateAsync_ExistingBooking_ReturnsNoContent()
+        public async Task Update_ExistingBooking_ReturnsNoContent()
         {
             var request = new UpdateBookingRequest(DateTime.Now, 2, 3, [2, 3]);
             _serviceMock
@@ -107,7 +121,7 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
         }
 
         [TestMethod]
-        public async Task UpdateAsync_NonExistingBooking_ReturnsNotFound()
+        public async Task Update_NonExistingBooking_ReturnsNotFound()
         {
             var request = new UpdateBookingRequest(DateTime.Now, 2, 3, [2, 3]);
             _serviceMock
@@ -141,20 +155,6 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             var actionResult = await _controller.DeleteByID(999);
 
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
-        }
-
-        [TestMethod]
-        public async Task GetById_NonExistingId_ReturnsNotFound()
-        {
-            _serviceMock
-                .Setup(s => s.GetByIdAsync(9999))
-                .ReturnsAsync((GetBookingResponse?)null);
-
-            var actionResult = await _controller.GetById(9999);
-
-            var result = actionResult.Result;
-
-            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
     }
 }
