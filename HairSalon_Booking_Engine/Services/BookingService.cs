@@ -211,7 +211,7 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult.Ok();
         }
 
-        public async Task<ServiceResult<List<TimeOnly>>> GetAvailableTimesAsync(DateOnly date, int stylistId)
+         public async Task<ServiceResult<GetAvailableTimesResponse>> GetAvailableTimesAsync(DateOnly date, int stylistId)
         {
             var startOfDay = date.ToDateTime(new TimeOnly(9, 0));
             var endOfDay = date.ToDateTime(new TimeOnly(17, 0));
@@ -243,7 +243,10 @@ namespace HairSalon_Booking_Engine.Services
                 }
             }
 
-            return ServiceResult<List<TimeOnly>>.Ok(availableTimes);
+
+            var response = new GetAvailableTimesResponse(date, stylistId, availableTimes);
+
+            return ServiceResult<GetAvailableTimesResponse>.Ok(response);
         }
     }
 }

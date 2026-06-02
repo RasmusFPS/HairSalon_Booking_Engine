@@ -22,6 +22,11 @@
         int CustomerId, 
         List<int>? TreatmentIds = null);
 
+    public record GetAvailableTimesResponse(
+    DateOnly Date,
+    int StylistId,
+    List<TimeOnly> AvailableTimes);
+
     public record CheckAvailabilityRequest(int StylistId, DateTime StartTime, DateTime EndTime);
 
     // Kanske borde flyttas in till en egen StylistDTOs?
