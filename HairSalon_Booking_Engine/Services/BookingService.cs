@@ -37,6 +37,72 @@ namespace HairSalon_Booking_Engine.Services
             return booking?.ToGetBookingResponse();
         }
 
+        public async Task<IEnumerable<GetBookingResponse>> GetByFiltersAsync(
+            DateTime? dateFrom,
+            DateTime? dateTo,
+            int? stylistId = null,
+            int? customerId = null,
+            BookingStatus? status = null,
+            string? sortBy = "StartTime",
+            bool descending = false)
+        {
+            var query = _ctx.Bookings
+                .AsNoTracking()
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments)
+                .AsQueryable();
+
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(b => b.StartTime.Date >= dateFrom.Value.Date);
+            }
+
+            if (dateTo.HasValue)
+            {
+                query = query.Where(b => b.StartTime.Date <= dateTo.Value.Date);
+            }
+
+            if (stylistId.HasValue && stylistId > 0)
+            {
+                query = query.Where(b => b.StylistId == stylistId.Value);
+            }
+
+            if (customerId.HasValue && customerId > 0)
+            {
+                query = query.Where(b => b.CustomerId == customerId.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(b => b.Status == status.Value);
+            }
+
+            query = sortBy?.ToLower() switch
+            {
+                "starttime" => descending
+                    ? query.OrderByDescending(b => b.StartTime)
+                    : query.OrderBy(b => b.StartTime),
+
+                "createdat" => descending
+                    ? query.OrderByDescending(b => b.CreatedAt)
+                    : query.OrderBy(b => b.CreatedAt),
+
+                "status" => descending
+                    ? query.OrderByDescending(b => b.Status)
+                    : query.OrderBy(b => b.Status),
+
+                "endtime" => descending
+                    ? query.OrderByDescending(b => b.EndTime)
+                    : query.OrderBy(b => b.EndTime),
+
+                _ => query.OrderBy(b => b.StartTime)
+            };
+
+            var bookings = await query.ToListAsync();
+            return bookings.ToGetBookingResponseList();
+        }
+
         public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
         {
             // kolla ifall treatments finns och hämta dem
