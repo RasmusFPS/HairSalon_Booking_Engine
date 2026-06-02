@@ -203,5 +203,19 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
 
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
         }
+
+        [TestMethod]
+        public async Task GetById_NonExistingId_ReturnsNotFound()
+        {
+            _serviceMock
+                .Setup(s => s.GetByIdAsync(9999))
+                .ReturnsAsync((GetBookingResponse?)null);
+
+            var actionResult = await _controller.GetById(9999);
+
+            var result = actionResult.Result;
+
+            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+        }
     }
 }
