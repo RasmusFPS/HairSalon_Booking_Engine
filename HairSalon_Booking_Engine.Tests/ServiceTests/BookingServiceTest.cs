@@ -9,32 +9,83 @@ namespace HairSalon_Booking_Engine.Tests.ServiceTests;
 public class BookingServiceTest
 {
     [TestMethod]
-    public async Task GetByIdAsync_ExistingId_ReturnsCorrectBooking()
+    public async Task GetAllAsync_ReturnsCorrectBookings()
     {
-        await using var ctx = DbContextFactory.Create(nameof(GetByIdAsync_ExistingId_ReturnsCorrectBooking));
+        //Arrange
+        await using var ctx = DbContextFactory.Create(nameof(GetAllAsync_ReturnsCorrectBookings));
+        var bookings = TestDataBuilder.CreateBookingList();
 
-        var fakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
-
-        var fakeStylist = TestDataBuilder.CreateStylist(id:1);
-
-        ctx.Customers.Add(fakeCustomer);
-        ctx.Stylist.Add(fakeStylist);
-
-
-        var fakeDbBooking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
-
-        ctx.Bookings.Add(fakeDbBooking);
+        foreach (var booking in bookings)
+        {
+            await ctx.Bookings.AddAsync(booking);
+        }
         await ctx.SaveChangesAsync();
 
         var service = new BookingService(ctx);
 
-        var result = await service.GetByIdAsync(fakeDbBooking.Id);
+        //Act
+        var result = await service.GetAllAsync();
 
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(bookings.Count, result.Count());
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_ExistingId_ReturnsCorrectBooking()
+    {
+        //Arrange
+        await using var ctx = DbContextFactory.Create(nameof(GetByIdAsync_ExistingId_ReturnsCorrectBooking));
+
+        var customer = TestDataBuilder.CreateCustomer();
+        var stylist = TestDataBuilder.CreateStylist();
+
+        ctx.Customers.Add(customer);
+        ctx.Stylist.Add(stylist);
+
+        var booking = TestDataBuilder.CreateBooking();
+
+        ctx.Bookings.Add(booking);
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
+
+        //Act
+        var result = await service.GetByIdAsync(booking.Id);
+
+        //Assert
         Assert.IsNotNull(result);
 
-        Assert.AreEqual(fakeDbBooking.CustomerId, result.Customer.Id);
-        Assert.AreEqual(fakeDbBooking.StylistId, result.Stylist.Id);
-        Assert.AreEqual(fakeDbBooking.StartTime, result.StartTime);
+        Assert.AreEqual(booking.CustomerId, result.Customer.Id);
+        Assert.AreEqual(booking.StylistId, result.Stylist.Id);
+        Assert.AreEqual(booking.StartTime, result.StartTime);
+    }
+
+    [TestMethod]
+    public async Task CreateAsync_ReturnsCreatedBookingData()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedBookingData));
+
+        await ctx.Customers.AddAsync(new Customer { Id = 1, FirstName = "Test", LastName = "Customer", Email = "c@test.com", Phone = "000" });
+        await ctx.Stylist.AddAsync(new Stylist { Id = 1, FirstName = "Test", LastName = "Stylist" });
+        await ctx.Treatments.AddAsync(new Treatment { Id = 1, Name = "Treatment 1" });
+        await ctx.Treatments.AddAsync(new Treatment { Id = 2, Name = "Treatment 2" });
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
+
+        var request = new CreateBookingRequest(
+            StartTime: DateTime.Now.AddDays(1),
+            StylistId: 1,
+            CustomerId: 1,
+            TreatmentIds: [1, 2]
+        );
+
+        var result = await service.CreateAsync(request);
+        Assert.IsNotNull(result);
+
+        var savedBooking = await ctx.Bookings.FindAsync(result.Data!.Id);
+        Assert.IsNotNull(savedBooking);
     }
 
     [TestMethod]
@@ -44,7 +95,7 @@ public class BookingServiceTest
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_ExistingBooking_UpdatesFields));
 
         var treatment = TestDataBuilder.CreateTreatment();
-        var booking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
+        var booking = TestDataBuilder.CreateBooking();
         booking.Treatments.Add(treatment);
 
         ctx.Bookings.Add(booking);
@@ -88,48 +139,20 @@ public class BookingServiceTest
     [TestMethod]
     public async Task DeleteAsync_ExistingBooking_RemovesFromDatabase()
     {
+        //Arrange
         await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_ExistingBooking_RemovesFromDatabase));
-        var fakeDbBooking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
+        var booking = TestDataBuilder.CreateBooking();
 
-        ctx.Bookings.Add(fakeDbBooking);
+        ctx.Bookings.Add(booking);
         await ctx.SaveChangesAsync();
 
         var service = new BookingService(ctx);
 
-        var IdToDelete = await service.DeleteAsync(1);
-
+        //Act
+        await service.DeleteAsync(1);
         var result = await service.GetByIdAsync(1);
 
+        //Assert
         Assert.IsNull(result);
-
-    }
-
-    [TestMethod]
-    public async Task CreateAsync_ReturnsCreatedBookingData()
-    {
-        var fakeTreatmentsId = new List<int> { 1, 2 };
-
-        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedBookingData));
-
-        await ctx.Customers.AddAsync(new Customer { Id = 1, FirstName = "Test", LastName = "Customer", Email = "c@test.com", Phone = "000" });
-        await ctx.Stylist.AddAsync(new Stylist { Id = 1, FirstName = "Test", LastName = "Stylist" });
-        await ctx.Treatments.AddAsync(new Treatment { Id = 1, Name = "Treatment 1" });
-        await ctx.Treatments.AddAsync(new Treatment { Id = 2, Name = "Treatment 2" });
-        await ctx.SaveChangesAsync();
-
-        var service = new BookingService(ctx);
-
-        var request = new CreateBookingRequest(
-            StartTime: DateTime.Now.AddDays(1),
-            StylistId: 1,
-            CustomerId: 1,
-            TreatmentIds: fakeTreatmentsId
-        );
-
-        var result = await service.CreateAsync(request);
-        Assert.IsNotNull(result);
-
-        var savedBooking = await ctx.Bookings.FindAsync(result.Data!.Id);
-        Assert.IsNotNull(savedBooking);
     }
 }

@@ -10,35 +10,26 @@ namespace HairSalon_Booking_Engine.Tests.ServiceTests;
 public class CustomerServiceTest
 {
     [TestMethod]
-    public async Task UpdateAsync_ExistingCustomer_UpdatesFields()
+    public async Task GetAllAsync_ReturnsCorrectCustomers()
     {
-        await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_ExistingCustomer_UpdatesFields));
-        ctx.Customers.Add(TestDataBuilder.CreateCustomer()); // skapa en ny kund med hjälp av test data builder
+        //Arrange
+        await using var ctx = DbContextFactory.Create(nameof(GetAllAsync_ReturnsCorrectCustomers));
+        var customers = TestDataBuilder.CreateCustomerList();
+
+        foreach (var customer in customers)
+        {
+            await ctx.Customers.AddAsync(customer);
+        }
         await ctx.SaveChangesAsync();
 
         var service = new CustomerService(ctx);
-        // använd DTO för att uppdatera, precis som i vanliga service metoderna
-        var updateRequest = new UpdateCustomerRequest("New", "Name", "+46709876543", null);
 
-        var result = await service.UpdateAsync(1, updateRequest);
+        //Act
+        var result = await service.GetAllAsync();
 
-        Assert.IsTrue(result.Success);
-        var updated = await ctx.Customers.FindAsync(1); // hitta den uppdaterade kunden i fake databasen
-        Assert.AreEqual("New", updated!.FirstName);
-        Assert.AreEqual("+46709876543", updated.Phone);
-    }
-
-    [TestMethod]
-    public async Task UpdateAsync_NonExistingId_ReturnsNotFound()
-    {
-        await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_NonExistingId_ReturnsNotFound));
-        var service = new CustomerService(ctx);
-        var request = new UpdateCustomerRequest("New", "Name", "+46701234567", null);
-
-        var result = await service.UpdateAsync(999, request);
-
-        Assert.IsFalse(result.Success);
-        Assert.AreEqual(ServiceResultStatus.NotFound, result.Status);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(customers.Count, result.Count());
     }
 
     [TestMethod]
@@ -95,47 +86,38 @@ public class CustomerServiceTest
         Assert.IsNotNull(created);
         Assert.IsNotNull("Anna", created.FirstName);
         Assert.AreEqual("Johansson", created.LastName);
-
-
-
     }
 
     [TestMethod]
-    public async Task CreateAsync_ReturnsCreatedCustomerData()
+    public async Task UpdateAsync_ExistingCustomer_UpdatesFields()
     {
-        await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedCustomerData));
-        var service = new CustomerService(ctx);
-        var request = new CreateCustomerRequest(
-            FirstName: "TestName",
-            LastName: "Test",
-            Phone: "00000099",
-            Email: "Test@email.com"
-        );
-
-        var result = await service.CreateAsync(request);
-
-        Assert.IsNotNull(result);
-
-        var savedCustomer = await ctx.Customers.FindAsync(result.Data!.Id);
-        Assert.IsNotNull(savedCustomer);
-    }
-
-    [TestMethod]
-    public async Task DeleteAsync_NonExistingId_ReturnsNotFound()
-    {
-        await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_NonExistingId_ReturnsNotFound));
-        var FakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
-
-        ctx.Customers.Add(FakeCustomer);
+        await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_ExistingCustomer_UpdatesFields));
+        ctx.Customers.Add(TestDataBuilder.CreateCustomer()); // skapa en ny kund med hjälp av test data builder
         await ctx.SaveChangesAsync();
 
         var service = new CustomerService(ctx);
+        // använd DTO för att uppdatera, precis som i vanliga service metoderna
+        var updateRequest = new UpdateCustomerRequest("New", "Name", "+46709876543", null);
 
-        var IdToDelete = await service.DeleteAsync(999);
+        var result = await service.UpdateAsync(1, updateRequest);
 
-        Assert.IsFalse(IdToDelete.Success);
+        Assert.IsTrue(result.Success);
+        var updated = await ctx.Customers.FindAsync(1); // hitta den uppdaterade kunden i fake databasen
+        Assert.AreEqual("New", updated!.FirstName);
+        Assert.AreEqual("+46709876543", updated.Phone);
+    }
 
-        Assert.AreEqual(ServiceResultStatus.NotFound, IdToDelete.Status);
+    [TestMethod]
+    public async Task UpdateAsync_NonExistingId_ReturnsNotFound()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_NonExistingId_ReturnsNotFound));
+        var service = new CustomerService(ctx);
+        var request = new UpdateCustomerRequest("New", "Name", "+46701234567", null);
+
+        var result = await service.UpdateAsync(999, request);
+
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(ServiceResultStatus.NotFound, result.Status);
     }
 
     [TestMethod]
@@ -159,4 +141,21 @@ public class CustomerServiceTest
         Assert.IsNull(result);
     }
 
+    [TestMethod]
+    public async Task DeleteAsync_NonExistingId_ReturnsNotFound()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(DeleteAsync_NonExistingId_ReturnsNotFound));
+        var FakeCustomer = TestDataBuilder.CreateCustomer(id: 1);
+
+        ctx.Customers.Add(FakeCustomer);
+        await ctx.SaveChangesAsync();
+
+        var service = new CustomerService(ctx);
+
+        var IdToDelete = await service.DeleteAsync(999);
+
+        Assert.IsFalse(IdToDelete.Success);
+
+        Assert.AreEqual(ServiceResultStatus.NotFound, IdToDelete.Status);
+    }
 }

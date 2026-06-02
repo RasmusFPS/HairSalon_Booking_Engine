@@ -56,6 +56,28 @@ namespace HairSalon_Booking_Engine.Tests.TestData
             StylistId = stylistId
         };
 
+        public static List<Customer> CreateCustomerList(int count = 3)
+        {
+            if (count < 1)
+            {
+                throw new ArgumentException("Count must be at least 1", nameof(count));
+            }
+
+            return Enumerable.Range(1, count)
+                .Select(i => CreateCustomer(i)).ToList();
+        }
+
+        public static List<Booking> CreateBookingList(int count = 3)
+        {
+            if (count < 1)
+            {
+                throw new ArgumentException("Count must be at least 1", nameof(count));
+            }
+
+            return Enumerable.Range(1, count)
+                .Select(i => CreateBooking(i)).ToList();
+        }
+
         public static GetCustomerResponse CreateGetCustomerResponse(int id = 1)
         {
             return new GetCustomerResponse(
