@@ -151,7 +151,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
-        [HttpGet(Name = "GetAvailableTimes")]
+        [HttpGet("AvailableTimes", Name = "GetAvailableTimesByStylistId")]
         public async Task<ActionResult> GetAvailableTimes(DateOnly date, int stylistId)
         {
             if (stylistId <= 0)
