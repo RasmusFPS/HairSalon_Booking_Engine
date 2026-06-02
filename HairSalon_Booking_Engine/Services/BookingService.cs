@@ -62,6 +62,49 @@ namespace HairSalon_Booking_Engine.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<GetBookingResponse>> GetByFiltersAsync(
+            DateTime? dateFrom,
+            DateTime? dateTo,
+            int? stylistId = null,
+            int? customerId = null,
+            BookingStatus? status = null,
+            string? sortBy = "StartTime",
+            bool descending = false)
+        {
+            var query = _ctx.Bookings
+                .AsNoTracking()
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments);
+
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(b => b.StartTime.Date >= dateFrom.Value.Date);
+            }
+
+            if (dateTo.HasValue)
+            {
+                query = query.Where(b => b.StartTime.Date <= dateTo.Value.Date);
+            }
+
+            if (stylistId.HasValue && stylistId > 0)
+            {
+                query = query.Where(b => b.StylistId == stylistId.Value);
+            }
+
+            if (customerId.HasValue && customerId > 0)
+            {
+                query = query.Where(b => b.CustomerId == customerId.Value);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(b => b.Status == status.Value);
+            }
+
+            var bookings = await query.ToListAsync();
+        }
+
         public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
         {
             // kolla ifall treatments finns och hämta dem
