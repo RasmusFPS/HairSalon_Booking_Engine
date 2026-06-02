@@ -149,5 +149,44 @@ namespace HairSalon_Booking_Engine.Services
             await _ctx.SaveChangesAsync();
             return ServiceResult.Ok();
         }
+
+         public async Task<ServiceResult<List<TimeOnly>>> GetAvailableTimesAsync(DateOnly date, int stylistId)
+        {
+            var startOfDay = date.ToDateTime(new TimeOnly(9, 0));
+            var endOfDay = date.ToDateTime(new TimeOnly(17, 0));
+
+            var schedules = await _ctx.Schedules
+                .Where(s => s.StylistId == stylistId && s.Available == true)
+                .ToListAsync();
+
+            var bookings = await _ctx.Bookings
+                .Where(b => b.StylistId == stylistId && b.Status != BookingStatus.Cancelled)
+                .ToListAsync();
+
+            var availableTimes = new List<TimeOnly>();
+
+            foreach (var schedule in schedules)
+            {
+                var currentTime = schedule.StartTime;
+
+                while (currentTime.AddHours(1) <= schedule.EndTime)
+                {
+                    bool isBooked = bookings.Any(b => currentTime >= b.StartTime && currentTime < b.EndTime);
+
+                    if (!isBooked)
+                    {
+                        availableTimes.Add(TimeOnly.FromDateTime(currentTime));
+                    }
+                    currentTime = currentTime.AddHours(1);
+                }
+            }
+
+            return ServiceResult<List<TimeOnly>>.Ok(availableTimes);
+        }
+
+
+
     }
+
 }
+
