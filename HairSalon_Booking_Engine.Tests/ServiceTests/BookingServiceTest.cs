@@ -42,12 +42,20 @@ public class BookingServiceTest
     {
         //Arrange
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_ExistingBooking_UpdatesFields));
-        ctx.Bookings.Add(TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1));
-        await ctx.SaveChangesAsync();
-        var service = new BookingService(ctx);
 
+        var treatment = TestDataBuilder.CreateTreatment();
+        var booking = TestDataBuilder.CreateBooking(id: 1, stylistId: 1, customerId: 1);
+        booking.Treatments.Add(treatment);
+
+        ctx.Bookings.Add(booking);
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
         var updatedTime = DateTime.Now.AddDays(1);
-        var updateRequest = new UpdateBookingRequest(updatedTime, 1, 2);
+        var updateRequest = new UpdateBookingRequest(
+            StartTime: updatedTime, 
+            StylistId: 1, 
+            CustomerId: 2);
 
         //Act
         var result = await service.UpdateAsync(1, updateRequest);
@@ -56,6 +64,7 @@ public class BookingServiceTest
         Assert.IsTrue(result.Success);
         var updated = await ctx.Bookings.FindAsync(1);
         Assert.AreEqual(updatedTime, updated!.StartTime);
+        Assert.AreEqual(updatedTime.AddMinutes(45), updated!.EndTime);
         Assert.AreEqual(1, updated!.StylistId);
         Assert.AreEqual(2, updated!.CustomerId);
     }

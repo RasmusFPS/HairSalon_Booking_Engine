@@ -42,7 +42,8 @@ namespace HairSalon_Booking_Engine.Tests.TestData
             StartTime = DateTime.UtcNow.AddDays(1),
             StylistId = stylistId,
             CustomerId = customerId,
-            Status = BookingStatus.Pending
+            Status = BookingStatus.Pending,
+            Treatments = new List<Treatment>()
         };
 
         public static Schedule CreateSchedule(int id = 1, int stylistId = 1) => new()
