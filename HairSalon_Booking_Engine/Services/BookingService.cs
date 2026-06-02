@@ -198,6 +198,7 @@ namespace HairSalon_Booking_Engine.Services
 
             var schedules = await _ctx.Schedules
                 .Where(s => s.StylistId == stylistId && s.Available == true)
+                .Where(s => s.StartTime >= startOfDay && s.StartTime <= endOfDay)
                 .ToListAsync();
 
             var bookings = await _ctx.Bookings
