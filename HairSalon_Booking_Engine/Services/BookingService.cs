@@ -1,4 +1,5 @@
-﻿using HairSalon_Booking_Engine.Models;
+﻿using HairSalon_Booking_Engine.Mappings;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,51 +16,25 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<IEnumerable<GetBookingResponse>> GetAllAsync()
         {
-            return await _ctx.Bookings
+            return (await _ctx.Bookings
                 .AsNoTracking()
-                .Select(b => new GetBookingResponse(
-                    b.Id, 
-                    b.CreatedAt, 
-                    b.StartTime, 
-                    b.EndTime, 
-                    b.Status,
-                    new GetStylistResponse(
-                        b.Stylist.Id, 
-                        b.Stylist.FirstName, 
-                        b.Stylist.LastName ?? ""),
-                    new GetCustomerResponse(
-                        b.Customer.Id, 
-                        b.Customer.FirstName, 
-                        b.Customer.LastName, 
-                        b.Customer.Phone, 
-                        b.Customer.Email),
-                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
-                .ToListAsync();
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments)
+                .ToListAsync())
+                .ToGetBookingResponseList();
         }
 
         public async Task<GetBookingResponse?> GetByIdAsync(int id)
         {
-            return await _ctx.Bookings
+            var booking = await _ctx.Bookings
                 .AsNoTracking()
-                .Where(b => b.Id == id)
-                .Select(b => new GetBookingResponse(
-                    b.Id, 
-                    b.CreatedAt, 
-                    b.StartTime, 
-                    b.EndTime, 
-                    b.Status,
-                    new GetStylistResponse(
-                        b.Stylist.Id, 
-                        b.Stylist.FirstName, 
-                        b.Stylist.LastName ?? ""),
-                    new GetCustomerResponse(
-                        b.Customer.Id, 
-                        b.Customer.FirstName, 
-                        b.Customer.LastName, 
-                        b.Customer.Phone, 
-                        b.Customer.Email),
-                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
-                .FirstOrDefaultAsync();
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            return booking?.ToGetBookingResponse();
         }
 
         public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
