@@ -105,5 +105,19 @@ namespace HairSalon_Booking_Engine.Controllers
 
             return NoContent();
         }
+
+        [HttpGet(Name = "GetAvailableTimes")]
+        public async Task<ActionResult> GetAvailableTimes(DateOnly date, int stylistId)
+        {
+            if (stylistId <= 0)
+                return BadRequest("Invalid Stylist ID.");
+
+            var result = await _bookingService.GetAvailableTimesAsync(date, stylistId);
+
+            if (!result.Success)
+                return BadRequest();
+
+            return Ok(result.Data);
+        }
     }
 }
