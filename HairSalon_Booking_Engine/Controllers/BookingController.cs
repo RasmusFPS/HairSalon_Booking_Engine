@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using HairSalon_Booking_Engine.Controllers.Extensions;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,50 @@ namespace HairSalon_Booking_Engine.Controllers
                 return NotFound($"Kunde inte hitta någon bokning med ID: {id}");
             }
             return Ok(booking);
+        }
+
+        [HttpGet("search", Name = "GetBookingsByFilters")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponse>>> GetByFilters(
+            DateTime? dateFrom,
+            DateTime? dateTo,
+            int? stylistId,
+            int? customerId,
+            BookingStatus? status,
+            string? sortBy = "StartTime",
+            bool descending = false)
+        {
+            var bookings = await _bookingService.GetByFiltersAsync(
+                dateFrom, dateTo, stylistId, customerId, status, sortBy, descending);
+
+            return Ok(bookings);
+        }
+
+        [HttpGet("week", Name = "GetWeeklyBookings")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponse>>> GetWeeklyBookings(DateTime weekStart)
+        {
+            var weekEnd = weekStart.AddDays(7);
+            var bookings = await _bookingService.GetByFiltersAsync(
+                dateFrom: weekStart,
+                dateTo: weekEnd,
+                sortBy: "StartTime");
+
+            return Ok(bookings);
+        }
+
+        [HttpGet("month", Name = "GetMonthlyBookings")]
+        public async Task<ActionResult<IEnumerable<GetBookingResponse>>> GetMonthlyBookings(
+            int year,
+            int month)
+        {
+            var firstDay = new DateTime(year, month, 1);
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
+
+            var bookings = await _bookingService.GetByFiltersAsync(
+                dateFrom: firstDay,
+                dateTo: lastDay,
+                sortBy: "StartTime");
+
+            return Ok(bookings);
         }
 
         [HttpPost(Name = "CreateBooking")]

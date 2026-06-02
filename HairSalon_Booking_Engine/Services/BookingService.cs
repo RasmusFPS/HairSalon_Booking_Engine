@@ -1,4 +1,5 @@
-﻿using HairSalon_Booking_Engine.Models;
+﻿using HairSalon_Booking_Engine.Mappings;
+using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,51 +16,25 @@ namespace HairSalon_Booking_Engine.Services
 
         public async Task<IEnumerable<GetBookingResponse>> GetAllAsync()
         {
-            return await _ctx.Bookings
+            return (await _ctx.Bookings
                 .AsNoTracking()
-                .Select(b => new GetBookingResponse(
-                    b.Id, 
-                    b.CreatedAt, 
-                    b.StartTime, 
-                    b.EndTime, 
-                    b.Status,
-                    new GetStylistResponse(
-                        b.Stylist.Id, 
-                        b.Stylist.FirstName, 
-                        b.Stylist.LastName ?? ""),
-                    new GetCustomerResponse(
-                        b.Customer.Id, 
-                        b.Customer.FirstName, 
-                        b.Customer.LastName, 
-                        b.Customer.Phone, 
-                        b.Customer.Email),
-                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
-                .ToListAsync();
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments)
+                .ToListAsync())
+                .ToGetBookingResponseList();
         }
 
         public async Task<GetBookingResponse?> GetByIdAsync(int id)
         {
-            return await _ctx.Bookings
+            var booking = await _ctx.Bookings
                 .AsNoTracking()
-                .Where(b => b.Id == id)
-                .Select(b => new GetBookingResponse(
-                    b.Id, 
-                    b.CreatedAt, 
-                    b.StartTime, 
-                    b.EndTime, 
-                    b.Status,
-                    new GetStylistResponse(
-                        b.Stylist.Id, 
-                        b.Stylist.FirstName, 
-                        b.Stylist.LastName ?? ""),
-                    new GetCustomerResponse(
-                        b.Customer.Id, 
-                        b.Customer.FirstName, 
-                        b.Customer.LastName, 
-                        b.Customer.Phone, 
-                        b.Customer.Email),
-                    b.Treatments.Select(t => new GetTreatmentResponse(t.Id, t.Name, t.Description, t.Price, t.DurationMin))))
-                .FirstOrDefaultAsync();
+                .Include(b => b.Stylist)
+                .Include(b => b.Customer)
+                .Include(b => b.Treatments)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            return booking?.ToGetBookingResponse();
         }
 
         public async Task<IEnumerable<GetBookingResponse>> GetByFiltersAsync(
@@ -75,7 +50,8 @@ namespace HairSalon_Booking_Engine.Services
                 .AsNoTracking()
                 .Include(b => b.Stylist)
                 .Include(b => b.Customer)
-                .Include(b => b.Treatments);
+                .Include(b => b.Treatments)
+                .AsQueryable();
 
             if (dateFrom.HasValue)
             {
@@ -102,7 +78,29 @@ namespace HairSalon_Booking_Engine.Services
                 query = query.Where(b => b.Status == status.Value);
             }
 
+            query = sortBy?.ToLower() switch
+            {
+                "starttime" => descending
+                    ? query.OrderByDescending(b => b.StartTime)
+                    : query.OrderBy(b => b.StartTime),
+
+                "createdat" => descending
+                    ? query.OrderByDescending(b => b.CreatedAt)
+                    : query.OrderBy(b => b.CreatedAt),
+
+                "status" => descending
+                    ? query.OrderByDescending(b => b.Status)
+                    : query.OrderBy(b => b.Status),
+
+                "endtime" => descending
+                    ? query.OrderByDescending(b => b.EndTime)
+                    : query.OrderBy(b => b.EndTime),
+
+                _ => query.OrderBy(b => b.StartTime)
+            };
+
             var bookings = await query.ToListAsync();
+            return bookings.ToGetBookingResponseList();
         }
 
         public async Task<ServiceResult<GetBookingResponse>> CreateAsync(CreateBookingRequest request)
