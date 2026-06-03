@@ -211,7 +211,7 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult.Ok();
         }
 
-         public async Task<ServiceResult<GetAvailableTimesResponse>> GetAvailableTimesAsync(DateOnly date, int stylistId)
+        public async Task<ServiceResult<GetAvailableTimesResponse>> GetAvailableTimesAsync(DateOnly date, int stylistId)
         {
             var startOfDay = date.ToDateTime(new TimeOnly(9, 0));
             var endOfDay = date.ToDateTime(new TimeOnly(17, 0));
@@ -227,21 +227,22 @@ namespace HairSalon_Booking_Engine.Services
 
             var availableTimes = new List<TimeOnly>();
 
-            foreach (var schedule in schedules)
+            var currentTime = date.ToDateTime(new TimeOnly(9, 0));
+            var shiftEnd = date.ToDateTime(new TimeOnly(17, 0));
+
+            while (currentTime.AddHours(1) <= shiftEnd)
             {
-                var currentTime = schedule.StartTime;
+                var slotEndTime = currentTime.AddHours(1);
 
-                while (currentTime.AddHours(1) <= schedule.EndTime)
+                bool isBooked = bookings.Any(b => currentTime >= b.StartTime && currentTime < b.EndTime);
+
+                if (!isBooked)
                 {
-                    bool isBooked = bookings.Any(b => currentTime >= b.StartTime && currentTime < b.EndTime);
-
-                    if (!isBooked)
-                    {
-                        availableTimes.Add(TimeOnly.FromDateTime(currentTime));
-                    }
-                    currentTime = currentTime.AddHours(1);
+                    availableTimes.Add(TimeOnly.FromDateTime(currentTime));
                 }
+                currentTime = currentTime.AddHours(1);
             }
+
 
 
             var response = new GetAvailableTimesResponse(date, stylistId, availableTimes);
