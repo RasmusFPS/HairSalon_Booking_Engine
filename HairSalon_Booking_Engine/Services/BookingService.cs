@@ -80,5 +80,74 @@ namespace HairSalon_Booking_Engine.Services
 
             return ServiceResult.Ok();
         }
+
+        public async Task<ServiceResult> CancelAsync(int id)
+        {
+            var booking = await _ctx.Bookings
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (booking is null)
+            {
+                return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
+            }
+            
+            if (booking.Status == BookingStatus.Cancelled)
+            {
+                return ServiceResult.ValidationError("Bokningen är redan avbokad.");
+            }
+
+            // Completed kan inte bli sann i nuvarande kod-> kan ej triggas
+            //if (booking.Status is BookingStatus.Completed)
+            //{
+            //    return ServiceResult.ValidationError("En genomförd bokning kan inte avbokas.");
+            //}
+
+            booking.Status = BookingStatus.Cancelled;
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
+
+        public async Task<ServiceResult> RescheduleAsync(int id, RescheduleBookingRequest request)
+        {
+            var booking = await _ctx.Bookings
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (booking is null)
+            {
+                return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
+            }
+
+            if (booking.Status == BookingStatus.Cancelled)
+            {
+                return ServiceResult.ValidationError("En avbokad bokning kan inte ändras.");
+            }
+
+            if (request.NewStartTime <= DateTime.Now)
+            {
+                return ServiceResult.ValidationError("Den nya tiden måste ligga i framtiden.");
+            }
+
+            var stylistId = request.StylistId ?? booking.StylistId;
+
+            bool slotTaken = await _ctx.Bookings.AnyAsync(b =>
+            b.Id != booking.Id &&
+            b.StylistId == stylistId &&
+            b.StartTime == request.NewStartTime &&
+            b.Status != BookingStatus.Cancelled);
+            if (slotTaken)
+            {
+                return ServiceResult.ValidationError("Den nya tiden är redan bokad");
+            }
+
+            booking.StartTime = request.NewStartTime;
+
+            if (request.StylistId.HasValue)
+            {
+                booking.StylistId = request.StylistId.Value;
+            }
+            await _ctx.SaveChangesAsync();
+            return ServiceResult.Ok();
+        }
     }
 }

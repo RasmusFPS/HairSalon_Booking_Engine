@@ -31,7 +31,10 @@ public class CustomerServiceTest
     [TestMethod]
     public async Task UpdateAsync_NonExistingId_ReturnsNotFound()
     {
+        // Arrange
         await using var ctx = DbContextFactory.Create(nameof(UpdateAsync_NonExistingId_ReturnsNotFound));
+        
+        //
         var service = new CustomerService(ctx);
         var request = new CreateCustomerRequest("New", "Name", "+46701234567", null);
 

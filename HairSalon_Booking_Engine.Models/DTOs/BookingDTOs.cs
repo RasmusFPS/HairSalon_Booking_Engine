@@ -4,5 +4,6 @@ namespace HairSalon_Booking_Engine.Models.DTOs
 {    
     public record GetBookingResponse(DateTime CreatedAt, DateTime StartTime, int StylistId, int CustomerId);
     public record CreateBookingRequest(DateTime CreatedAt, DateTime StartTime, int StylistId, int CustomerId);
+    public record RescheduleBookingRequest(DateTime NewStartTime, int? StylistId = null);
 
 }
