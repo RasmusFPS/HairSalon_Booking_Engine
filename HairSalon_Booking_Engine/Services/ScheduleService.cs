@@ -17,11 +17,11 @@ namespace HairSalon_Booking_Engine.Services
             return await _ctx.Schedules
                 .AsNoTracking()
                 .Select(c => new GetScheduleResponse(
-                    c.Id, 
-                    c.StartTime, 
-                    c.EndTime, 
-                    c.Available, 
-                    c.Notes, 
+                    c.Id,
+                    c.DayOfWeek,
+                    c.WorkStart,
+                    c.WorkEnd,
+                    c.LunchTime,
                     new GetStylistResponse(c.StylistId, c.Stylist.FirstName, c.Stylist.LastName ?? "")))
                 .ToListAsync();
         }
@@ -33,10 +33,10 @@ namespace HairSalon_Booking_Engine.Services
                 .Where(s => s.StylistId == id)
                 .Select(s => new GetScheduleResponse(
                     s.Id,
-                    s.StartTime,
-                    s.EndTime,
-                    s.Available,
-                    s.Notes,
+                    s.DayOfWeek,
+                    s.WorkStart,
+                    s.WorkEnd,
+                    s.LunchTime,
                     new GetStylistResponse(
                         s.Stylist.Id,
                         s.Stylist.FirstName,

@@ -117,8 +117,13 @@ namespace HairSalon_Booking_Engine.Services
             }
 
             // räkna ut sluttiden baserat på treatment tiderna
-            var totalDurationMin = treatments.Sum(t => t.DurationMin);
-            var endTime = request.StartTime.AddMinutes(totalDurationMin);
+            var endTime = request.StartTime.AddMinutes(treatments.Sum(t => t.DurationMin));
+
+            if (!await IsStylistAvailableAsync(request.StylistId, request.StartTime, endTime))
+            {
+                return ServiceResult<GetBookingResponse>.ValidationError(
+                    "Frisören är inte tillgänglig för den valda tiden");
+            }
 
             var newBooking = new Booking
             {
@@ -151,16 +156,8 @@ namespace HairSalon_Booking_Engine.Services
 
             if (booking.Status is BookingStatus.Completed or BookingStatus.Cancelled)
             {
-                return ServiceResult.ValidationError("Kan inte uppdatera klarmarkerad eller avbokad bokning");
-            }
-
-            var hasConflict = await _ctx.Bookings
-                .Where(b => b.Id != id && b.StylistId == request.StylistId && b.Status != BookingStatus.Cancelled)
-                .AnyAsync(b => request.StartTime < b.EndTime && request.StartTime.AddHours(1) > b.StartTime);
-
-            if (hasConflict)
-            {
-                return ServiceResult.ValidationError("Frisörsalongen är redan bokad för denna tid");
+                return ServiceResult.ValidationError(
+                    "Kan inte uppdatera klarmarkerad eller avbokad bokning");
             }
 
             // räkna om sluttiden på bokningen om treatments har skickats in
@@ -172,7 +169,8 @@ namespace HairSalon_Booking_Engine.Services
 
                 if (treatments.Count != request.TreatmentIds.Count)
                 {
-                    return ServiceResult.ValidationError("En eller flera behandlingar kunde inte hittas");
+                    return ServiceResult.ValidationError(
+                        "En eller flera behandlingar kunde inte hittas");
                 }
 
                 // töm alla treatments och fyll på med de nya om de finns
@@ -185,11 +183,20 @@ namespace HairSalon_Booking_Engine.Services
 
             if (!booking.Treatments.Any())
             {
-                return ServiceResult.ValidationError("Bokningen måste innehålla minst en behandling");
+                return ServiceResult.ValidationError(
+                    "Bokningen måste innehålla minst en behandling");
+            }
+
+            var endTime = request.StartTime.AddMinutes(booking.Treatments.Sum(t => t.DurationMin));
+
+            if (!await IsStylistAvailableAsync(request.StylistId, request.StartTime, endTime, excludeBookingId: id))
+            {
+                return ServiceResult.ValidationError(
+                    "Frisören är inte tillgänglig för den valda tiden");
             }
 
             booking.StartTime = request.StartTime;
-            booking.EndTime = request.StartTime.AddMinutes(booking.Treatments.Sum(t => t.DurationMin));
+            booking.EndTime = endTime;
             booking.StylistId = request.StylistId;
             booking.CustomerId = request.CustomerId;
 
@@ -211,42 +218,91 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult.Ok();
         }
 
+        public async Task<bool> IsStylistAvailableAsync(
+            int stylistId, 
+            DateTime startTime, 
+            DateTime endTime, 
+            int? excludeBookingId = null)
+        {
+            // kollar så att frisören har ett schema som täcker
+            // den förfrågade bokningstiden helt
+            bool coveredBySchedule = await _ctx.Schedules
+                .AnyAsync(s =>
+                    s.StylistId == stylistId &&
+                    s.DayOfWeek == startTime.DayOfWeek &&
+                    s.WorkStart <= TimeOnly.FromDateTime(startTime) &&
+                    s.WorkEnd >= TimeOnly.FromDateTime(endTime) &&
+                    (TimeOnly.FromDateTime(endTime) <= s.LunchTime ||
+                    TimeOnly.FromDateTime(startTime) >= s.LunchTime.AddHours(1)));
+
+            if (!coveredBySchedule)
+            {
+                return false;
+            }
+
+            // kollar så att frisören inte redan har några bokningar under den valda tiden
+            var conflictingBookings = _ctx.Bookings
+                .Where(b =>
+                    b.StylistId == stylistId &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.StartTime < endTime &&
+                    b.EndTime > startTime);
+
+            // denna raden finns till så att nuvarande bokning
+            // inte kan blockera sig själv när tiden uppdateras
+            if (excludeBookingId.HasValue)
+            {
+                conflictingBookings = conflictingBookings.Where(b => b.Id != excludeBookingId.Value);
+            }
+
+            return !await conflictingBookings.AnyAsync();
+        }
+
         public async Task<ServiceResult<GetAvailableTimesResponse>> GetAvailableTimesAsync(DateOnly date, int stylistId)
         {
-            var startOfDay = date.ToDateTime(new TimeOnly(9, 0));
-            var endOfDay = date.ToDateTime(new TimeOnly(17, 0));
+            var schedule = await _ctx.Schedules
+                .FirstOrDefaultAsync(s =>
+                    s.StylistId == stylistId &&
+                    s.DayOfWeek == date.DayOfWeek);
 
-            var schedules = await _ctx.Schedules
-                .Where(s => s.StylistId == stylistId && s.Available == true)
-                .Where(s => s.StartTime >= startOfDay && s.StartTime <= endOfDay)
-                .ToListAsync();
+            if (schedule is null)
+            {
+                return ServiceResult<GetAvailableTimesResponse>.ValidationError(
+                    "Frisören arbetar inte den valda dagen");
+            }
+
+            var startOfDay = date.ToDateTime(schedule.WorkStart);
+            var endOfDay = date.ToDateTime(schedule.WorkEnd);
 
             var bookings = await _ctx.Bookings
-                .Where(b => b.StylistId == stylistId && b.Status != BookingStatus.Cancelled)
+                .Where(b => 
+                    b.StylistId == stylistId &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.StartTime >= startOfDay &&
+                    b.StartTime < endOfDay)
                 .ToListAsync();
 
             var availableTimes = new List<TimeOnly>();
 
-            var currentTime = date.ToDateTime(new TimeOnly(9, 0));
-            var shiftEnd = date.ToDateTime(new TimeOnly(17, 0));
+            var currentTime = startOfDay;
 
-            while (currentTime.AddHours(1) <= shiftEnd)
+            while (currentTime.AddHours(1) <= endOfDay)
             {
-                var slotEndTime = currentTime.AddHours(1);
+                var currentTimeOnly = TimeOnly.FromDateTime(currentTime);
+
+                bool isLunch = currentTimeOnly >= schedule.LunchTime &&
+                    currentTimeOnly < schedule.LunchTime.AddHours(1);
 
                 bool isBooked = bookings.Any(b => currentTime >= b.StartTime && currentTime < b.EndTime);
 
-                if (!isBooked)
+                if (!isLunch && !isBooked)
                 {
-                    availableTimes.Add(TimeOnly.FromDateTime(currentTime));
+                    availableTimes.Add(currentTimeOnly);
                 }
                 currentTime = currentTime.AddHours(1);
             }
 
-
-
             var response = new GetAvailableTimesResponse(date, stylistId, availableTimes);
-
             return ServiceResult<GetAvailableTimesResponse>.Ok(response);
         }
     }

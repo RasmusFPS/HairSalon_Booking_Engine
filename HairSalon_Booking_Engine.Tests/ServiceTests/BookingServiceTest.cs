@@ -73,16 +73,17 @@ public class BookingServiceTest
     {
         await using var ctx = DbContextFactory.Create(nameof(CreateAsync_ReturnsCreatedBookingData));
 
-        await ctx.Customers.AddAsync(new Customer { Id = 1, FirstName = "Test", LastName = "Customer", Email = "c@test.com", Phone = "000" });
-        await ctx.Stylist.AddAsync(new Stylist { Id = 1, FirstName = "Test", LastName = "Stylist" });
-        await ctx.Treatments.AddAsync(new Treatment { Id = 1, Name = "Treatment 1" });
-        await ctx.Treatments.AddAsync(new Treatment { Id = 2, Name = "Treatment 2" });
+        await ctx.Customers.AddAsync(TestDataBuilder.CreateCustomer());
+        await ctx.Stylist.AddAsync(TestDataBuilder.CreateStylist());
+        await ctx.Treatments.AddAsync(TestDataBuilder.CreateTreatment(id: 1));
+        await ctx.Treatments.AddAsync(TestDataBuilder.CreateTreatment(id: 2));
+        await ctx.Schedules.AddAsync(TestDataBuilder.CreateSchedule());
         await ctx.SaveChangesAsync();
 
         var service = new BookingService(ctx);
 
         var request = new CreateBookingRequest(
-            StartTime: DateTime.Now.AddDays(1),
+            StartTime: DateTime.UtcNow.Date.AddDays(1).AddHours(10),
             StylistId: 1,
             CustomerId: 1,
             TreatmentIds: [1, 2]
@@ -106,10 +107,12 @@ public class BookingServiceTest
         booking.Treatments.Add(treatment);
 
         ctx.Bookings.Add(booking);
+        await ctx.Schedules.AddAsync(TestDataBuilder.CreateSchedule());
         await ctx.SaveChangesAsync();
 
         var service = new BookingService(ctx);
-        var updatedTime = DateTime.Now.AddDays(1);
+        var updatedTime = DateTime.UtcNow.Date.AddDays(1).AddHours(10);
+
         var updateRequest = new UpdateBookingRequest(
             StartTime: updatedTime, 
             StylistId: 1, 

@@ -3,10 +3,10 @@
     public class Schedule
     {
         public int Id { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public bool Available { get; set; }
-        public string? Notes { get; set; }
+        public DayOfWeek DayOfWeek { get; set; } // enum inbyggd i System
+        public TimeOnly WorkStart { get; set; }
+        public TimeOnly WorkEnd { get; set; }
+        public TimeOnly LunchTime { get; set; } // lunch är alltid en timma
         public int StylistId { get; set; }
 
         // navigation properties
