@@ -39,7 +39,7 @@ namespace HairSalon_Booking_Engine.Tests.TestData
         {
             Id = id,
             CreatedAt = DateTime.UtcNow,
-            StartTime = DateTime.UtcNow.AddDays(1),
+            StartTime = DateTime.UtcNow.Date.AddDays(1).AddHours(10),
             StylistId = stylistId,
             CustomerId = customerId,
             Status = BookingStatus.Pending,
@@ -49,10 +49,10 @@ namespace HairSalon_Booking_Engine.Tests.TestData
         public static Schedule CreateSchedule(int id = 1, int stylistId = 1) => new()
         {
             Id = id,
-            StartTime = DateTime.UtcNow.AddDays(1).Date.AddHours(9),
-            EndTime = DateTime.UtcNow.AddDays(1).Date.AddHours(10),
-            Available = true,
-            Notes = null,
+            DayOfWeek = DateTime.UtcNow.AddDays(1).DayOfWeek,
+            WorkStart = new TimeOnly(9, 0),
+            WorkEnd = new TimeOnly(17, 0),
+            LunchTime = new TimeOnly(12, 0),
             StylistId = stylistId
         };
 
@@ -112,10 +112,10 @@ namespace HairSalon_Booking_Engine.Tests.TestData
         {
             return new GetScheduleResponse(
                 id, 
-                DateTime.Now, 
-                DateTime.Now.AddMinutes(60), 
-                true, 
-                null, 
+                DayOfWeek.Monday,
+                new TimeOnly(9, 0), 
+                new TimeOnly(17, 0), 
+                new TimeOnly(12, 0), 
                 new GetStylistResponse(1, "Erik", "Lindgren")
             );
         }
