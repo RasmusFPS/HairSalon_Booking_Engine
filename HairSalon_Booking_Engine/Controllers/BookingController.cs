@@ -151,6 +151,19 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/cancel", Name = "CancelBooking")]
+        public async Task<ActionResult> Cancel(int id)
+        {
+            var result = await _bookingService.CancelAsync(id);
+
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
+            return NoContent();
+        }
+
+
         [HttpGet("AvailableTimes", Name = "GetAvailableTimesByStylistId")]
         public async Task<ActionResult> GetAvailableTimes(DateOnly date, int stylistId)
         {
