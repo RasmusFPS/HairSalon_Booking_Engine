@@ -33,4 +33,5 @@
     // Kanske är onödigt om det bara ska finnas en DTO?
     public record GetStylistResponse(int Id, string FirstName, string LastName);
     public record GetTreatmentResponse(int Id, string Name, string? Description, decimal Price, int DurationMin);
+    public record RescheduleBookingRequest(DateTime NewStartTime, int? StylistId = null);
 }
