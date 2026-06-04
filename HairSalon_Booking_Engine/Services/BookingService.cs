@@ -336,6 +336,7 @@ namespace HairSalon_Booking_Engine.Services
         public async Task<ServiceResult> RescheduleAsync(int id, RescheduleBookingRequest request)
         {
             var booking = await _ctx.Bookings
+                .Include(b => b.Treatments)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (booking is null)
@@ -354,23 +355,18 @@ namespace HairSalon_Booking_Engine.Services
             }
 
             var stylistId = request.StylistId ?? booking.StylistId;
+            var newEndTime = request.NewStartTime.AddMinutes(booking.Treatments.Sum(t => t.DurationMin));
 
-            bool slotTaken = await _ctx.Bookings.AnyAsync(b =>
-            b.Id != booking.Id &&
-            b.StylistId == stylistId &&
-            b.StartTime == request.NewStartTime &&
-            b.Status != BookingStatus.Cancelled);
-            if (slotTaken)
+            if (!await IsStylistAvailableAsync(stylistId, request.NewStartTime, newEndTime))
             {
-                return ServiceResult.ValidationError("Den nya tiden är redan bokad");
+                return ServiceResult.ValidationError(
+                    "Frisören är inte tillgänglig för den valda tiden");
             }
 
             booking.StartTime = request.NewStartTime;
+            booking.EndTime = newEndTime;
+            booking.StylistId = stylistId;
 
-            if (request.StylistId.HasValue)
-            {
-                booking.StylistId = request.StylistId.Value;
-            }
             await _ctx.SaveChangesAsync();
             return ServiceResult.Ok();
         }
