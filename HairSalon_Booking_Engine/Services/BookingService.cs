@@ -357,7 +357,7 @@ namespace HairSalon_Booking_Engine.Services
             var stylistId = request.StylistId ?? booking.StylistId;
             var newEndTime = request.NewStartTime.AddMinutes(booking.Treatments.Sum(t => t.DurationMin));
 
-            if (!await IsStylistAvailableAsync(stylistId, request.NewStartTime, newEndTime))
+            if (!await IsStylistAvailableAsync(stylistId, request.NewStartTime, newEndTime, excludeBookingId: id))
             {
                 return ServiceResult.ValidationError(
                     "Frisören är inte tillgänglig för den valda tiden");

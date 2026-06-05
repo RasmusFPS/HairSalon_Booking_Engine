@@ -21,5 +21,8 @@ namespace HairSalon_Booking_Engine.Services
         Task<ServiceResult> UpdateAsync(int id, UpdateBookingRequest updatedBooking);
         Task<ServiceResult> DeleteAsync(int id);
         Task<ServiceResult<GetAvailableTimesResponse>> GetAvailableTimesAsync(DateOnly date,int stylistId);
+
+        Task<ServiceResult> CancelAsync(int id);
+        Task<ServiceResult> RescheduleAsync(int id, RescheduleBookingRequest request);
     }
 }
