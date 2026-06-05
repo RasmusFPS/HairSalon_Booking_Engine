@@ -81,5 +81,22 @@ namespace HairSalon_Booking_Engine.Services
 
             return ServiceResult.Ok();
         }
+
+        public async Task<IEnumerable<GetCustomerBookingHistoryResponse>> GetCustomerBookingHistoryByIdAsync(int customerId)
+        {
+            return await _ctx.Bookings
+                .AsNoTracking()
+                .Where(b => b.CustomerId == customerId)
+                .OrderByDescending(b => b.StartTime)
+                .Select(b => new GetCustomerBookingHistoryResponse(
+                    b.Id,
+                    b.StartTime,
+                    b.EndTime,
+                    b.Status,
+                    $"{b.Stylist.FirstName} {b.Stylist.LastName}",
+                    b.Treatments.Select(t => t.Name)
+                ))
+                .ToListAsync();
+        }
     }
 }

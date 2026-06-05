@@ -106,5 +106,18 @@ namespace HairSalon_Booking_Engine.Controllers
             
             return NoContent();
         }
+
+        [HttpGet("customer/{customerId}")]
+        public async Task<ActionResult<IEnumerable<GetCustomerBookingHistoryResponse>>> GetCustomerBookingHistory(int customerId)
+        {
+            if (customerId <= 0)
+            {
+                return BadRequest("Invalid Customer ID.");
+            }
+
+            var history = await _customerService.GetCustomerBookingHistoryByIdAsync(customerId);
+
+            return Ok(history);
+        }
     }
 }
