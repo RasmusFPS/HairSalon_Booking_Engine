@@ -2,6 +2,7 @@ using HairSalon_Booking_Engine.Models;
 using HairSalon_Booking_Engine.Models.DTOs;
 using HairSalon_Booking_Engine.Services;
 using HairSalon_Booking_Engine.Tests.TestData;
+using System.Diagnostics;
 
 namespace HairSalon_Booking_Engine.Tests.ServiceTests;
 
@@ -114,8 +115,8 @@ public class BookingServiceTest
         var updatedTime = DateTime.UtcNow.Date.AddDays(1).AddHours(10);
 
         var updateRequest = new UpdateBookingRequest(
-            StartTime: updatedTime, 
-            StylistId: 1, 
+            StartTime: updatedTime,
+            StylistId: 1,
             CustomerId: 2);
 
         //Act
@@ -164,5 +165,49 @@ public class BookingServiceTest
 
         //Assert
         Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetAvailableTimesAsync_ReturnsCorrectTimes()
+    {
+        await using var ctx = DbContextFactory.Create(nameof(GetAvailableTimesAsync_ReturnsCorrectTimes));
+
+        var tomorrow = DateTime.Today.AddDays(1);
+        var testDate = DateOnly.FromDateTime(tomorrow);
+
+        int testStylistId = 1;
+
+        var schedule = new Schedule
+        {
+            Id = 1,
+            StylistId = testStylistId,
+            DayOfWeek = tomorrow.DayOfWeek,
+            WorkStart = new TimeOnly(9, 0),
+            WorkEnd = new TimeOnly(17, 0),
+            LunchTime = new TimeOnly(12, 0)
+        };
+
+        var booking1 = new Booking { Id = 1, CreatedAt = new DateTime(2026, 5, 20), StartTime = tomorrow.AddHours(9), EndTime = tomorrow.AddHours(10), StylistId = testStylistId, CustomerId = 1, Status = BookingStatus.Confirmed };
+        var booking2 = new Booking { Id = 2, CreatedAt = new DateTime(2026, 5, 20), StartTime = tomorrow.AddHours(10), EndTime = tomorrow.AddHours(11), StylistId = testStylistId, CustomerId = 2, Status = BookingStatus.Confirmed };
+
+        ctx.Schedules.Add(schedule);
+        ctx.Bookings.AddRange(booking1, booking2);
+        await ctx.SaveChangesAsync();
+
+        var service = new BookingService(ctx);
+
+        var result = await service.GetAvailableTimesAsync(testDate, testStylistId);
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.Success, "Service method failed to return success.");
+
+        var responseDto = result.Data;
+        Assert.IsNotNull(responseDto);
+
+        var theList = responseDto.AvailableTimes;
+
+        Assert.IsFalse(theList.Contains(new TimeOnly(9, 0)), "09:00 is booked, it should NOT be available.");
+        Assert.IsFalse(theList.Contains(new TimeOnly(10, 0)), "10:00 is booked, it should NOT be available.");
+        Assert.IsTrue(theList.Contains(new TimeOnly(11, 0)), "11:00 should be free and available.");
     }
 }
