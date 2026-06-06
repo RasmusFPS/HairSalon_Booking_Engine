@@ -35,14 +35,18 @@ namespace HairSalon_Booking_Engine.Tests.TestData
             DurationMin = 45
         };
 
-        public static Booking CreateBooking(int id = 1, int stylistId = 1, int customerId = 1) => new()
+        public static Booking CreateBooking(
+            int id = 1, 
+            int stylistId = 1, 
+            int customerId = 1, 
+            BookingStatus status = BookingStatus.Pending) => new()
         {
             Id = id,
             CreatedAt = DateTime.UtcNow,
             StartTime = DateTime.UtcNow.Date.AddDays(1).AddHours(10),
             StylistId = stylistId,
             CustomerId = customerId,
-            Status = BookingStatus.Pending,
+            Status = status,
             Treatments = new List<Treatment>()
         };
 
