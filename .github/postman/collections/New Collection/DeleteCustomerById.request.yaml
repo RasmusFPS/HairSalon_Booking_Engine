@@ -1,0 +1,29 @@
+$kind: http-request
+name: DeleteCustomerById
+url: https://localhost:7020/api/Customer/3
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 204\", function () {\r
+
+      \    pm.response.to.have.status(204);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response body is empty\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.be.empty;\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response time is less than 200ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(200);\r
+
+      });"
+    language: text/javascript
+order: 2882096848092736
