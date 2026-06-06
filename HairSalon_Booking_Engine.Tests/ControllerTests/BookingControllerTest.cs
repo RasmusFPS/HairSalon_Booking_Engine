@@ -175,5 +175,19 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
             Assert.IsInstanceOfType(actionResult, typeof(OkObjectResult));
         }
 
+        [TestMethod]
+        public async Task GetAvailableTimes_StylistNotWorking_ReturnsBadRequest()
+        {
+            var testDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+            int nonExistingStylistId = 999;
+
+            _serviceMock
+                .Setup(s => s.GetAvailableTimesAsync(testDate, nonExistingStylistId))
+                .ReturnsAsync(new ServiceResult<GetAvailableTimesResponse>(ServiceResultStatus.NotFound));
+
+            var actionResult = await _controller.GetAvailableTimes(testDate, nonExistingStylistId);
+
+            Assert.IsInstanceOfType(actionResult, typeof(BadRequestResult));
+        }
     }
 }
