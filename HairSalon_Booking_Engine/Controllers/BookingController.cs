@@ -151,6 +151,18 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/change-status", Name = "ChangeBookingStatus")]
+        public async Task<ActionResult> ChangeStatus(int id, BookingStatus status)
+        {
+            var result = await _bookingService.ChangeStatusAsync(id, status);
+
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
+            return NoContent();
+        }
+
         [HttpPatch("{id}/cancel", Name = "CancelBooking")]
         public async Task<ActionResult> Cancel(int id)
         {
@@ -163,6 +175,17 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/reschedule", Name = "RescheduleBooking")]
+        public async Task<ActionResult> Reschedule(int id, RescheduleBookingRequest request)
+        {
+            var result = await _bookingService.RescheduleAsync(id, request);
+
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
+            return NoContent();
+        }
 
         [HttpGet("AvailableTimes", Name = "GetAvailableTimesByStylistId")]
         public async Task<ActionResult> GetAvailableTimes(DateOnly date, int stylistId)
