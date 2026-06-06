@@ -108,18 +108,6 @@ namespace HairSalon_Booking_Engine.Tests.TestData
             );
         }
 
-        public static GetScheduleResponse CreateGetScheduleResponse(int id = 1)
-        {
-            return new GetScheduleResponse(
-                id, 
-                DayOfWeek.Monday,
-                new TimeOnly(9, 0), 
-                new TimeOnly(17, 0), 
-                new TimeOnly(12, 0), 
-                new GetStylistResponse(1, "Erik", "Lindgren")
-            );
-        }
-
         public static List<GetCustomerResponse> CreateGetCustomerResponseList(int count = 3)
         {
             if (count < 1)
