@@ -87,7 +87,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return Ok(bookings);
         }
 
-        [HttpPost(Name = "CreateBooking")]
+        [HttpPost("create", Name = "CreateBooking")]
         public async Task<ActionResult> Create(CreateBookingRequest request)
         {
             var validationResult = await _createBookingValidator.ValidateAsync(request);
@@ -112,7 +112,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
         }
 
-        [HttpPut("{id}", Name = "UpdateBooking")]
+        [HttpPut("{id}/update", Name = "UpdateBooking")]
         public async Task<ActionResult> Update(int id, UpdateBookingRequest request)
         {
             var validationResult = await _updateBookingValidator.ValidateAsync(request);
@@ -138,7 +138,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}", Name = "DeleteBookingById")]
+        [HttpDelete("{id}/delete", Name = "DeleteBookingById")]
         public async Task<IActionResult> DeleteByID(int id)
         {
             var result = await _bookingService.DeleteAsync(id);
@@ -148,6 +148,18 @@ namespace HairSalon_Booking_Engine.Controllers
                 return result.ToActionResult();
             }
 
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/change-status", Name = "ChangeBookingStatus")]
+        public async Task<ActionResult> ChangeStatus(int id, BookingStatus status)
+        {
+            var result = await _bookingService.ChangeStatusAsync(id, status);
+
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
             return NoContent();
         }
 
@@ -163,8 +175,19 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/reschedule", Name = "RescheduleBooking")]
+        public async Task<ActionResult> Reschedule(int id, RescheduleBookingRequest request)
+        {
+            var result = await _bookingService.RescheduleAsync(id, request);
 
-        [HttpGet("AvailableTimes", Name = "GetAvailableTimesByStylistId")]
+            if (!result.Success)
+            {
+                return result.ToActionResult();
+            }
+            return NoContent();
+        }
+
+        [HttpGet("available-times", Name = "GetAvailableTimesByStylistId")]
         public async Task<ActionResult> GetAvailableTimes(DateOnly date, int stylistId)
         {
             if (stylistId <= 0)

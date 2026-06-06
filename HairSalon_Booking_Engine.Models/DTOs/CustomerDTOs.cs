@@ -6,12 +6,10 @@
     public record CreateCustomerRequest(string FirstName, string LastName, string Phone, string? Email);
     public record UpdateCustomerRequest(string FirstName, string LastName, string Phone, string? Email);
     public record GetCustomerBookingHistoryResponse(
-    int BookingId,
-    DateTime StartTime,
-    DateTime EndTime,
-    BookingStatus Status,
-    string StylistName,
-    IEnumerable<string> Treatments
-    );
-
+        int BookingId,
+        DateTime StartTime,
+        DateTime EndTime,
+        BookingStatus Status,
+        string StylistName,
+        IEnumerable<string> Treatments);
 }

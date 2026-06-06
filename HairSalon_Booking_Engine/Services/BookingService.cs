@@ -306,6 +306,21 @@ namespace HairSalon_Booking_Engine.Services
             return ServiceResult<GetAvailableTimesResponse>.Ok(response);
         }
 
+        public async Task<ServiceResult> ChangeStatusAsync(int id, BookingStatus status)
+        {
+            var booking = await _ctx.Bookings.FindAsync(id);
+
+            if (booking is null)
+            {
+                return ServiceResult.NotFound($"Ingen bokning hittades med ID: {id}");
+            }
+
+            booking.Status = status;
+            await _ctx.SaveChangesAsync();
+
+            return ServiceResult.Ok();
+        }
+
         public async Task<ServiceResult> CancelAsync(int id)
         {
             var booking = await _ctx.Bookings
@@ -321,11 +336,10 @@ namespace HairSalon_Booking_Engine.Services
                 return ServiceResult.ValidationError("Bokningen är redan avbokad.");
             }
 
-            // Completed kan inte bli sann i nuvarande kod-> kan ej triggas
-            //if (booking.Status is BookingStatus.Completed)
-            //{
-            //    return ServiceResult.ValidationError("En genomförd bokning kan inte avbokas.");
-            //}
+            if (booking.Status is BookingStatus.Completed)
+            {
+                return ServiceResult.ValidationError("En genomförd bokning kan inte avbokas.");
+            }
 
             booking.Status = BookingStatus.Cancelled;
             await _ctx.SaveChangesAsync();

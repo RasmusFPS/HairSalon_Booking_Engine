@@ -23,15 +23,15 @@
         List<int>? TreatmentIds = null);
 
     public record GetAvailableTimesResponse(
-    DateOnly Date,
-    int StylistId,
-    List<TimeOnly> AvailableTimes);
+        DateOnly Date,
+        int StylistId,
+        List<TimeOnly> AvailableTimes);
 
+    public record RescheduleBookingRequest(DateTime NewStartTime, int? StylistId = null);
     public record CheckAvailabilityRequest(int StylistId, DateTime StartTime, DateTime EndTime);
 
     // Kanske borde flyttas in till en egen StylistDTOs?
     // Kanske är onödigt om det bara ska finnas en DTO?
     public record GetStylistResponse(int Id, string FirstName, string LastName);
     public record GetTreatmentResponse(int Id, string Name, string? Description, decimal Price, int DurationMin);
-    public record RescheduleBookingRequest(DateTime NewStartTime, int? StylistId = null);
 }
