@@ -156,5 +156,38 @@ namespace HairSalon_Booking_Engine.Tests.ControllerTests
 
             Assert.IsInstanceOfType(actionResult, typeof(NotFoundObjectResult));
         }
+
+        [TestMethod]
+        public async Task GetAvailableTimes_ValidRequest_ReturnsOk()
+        {
+            var testDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+            int testStylistId = 1;
+
+            var fakeTimesList = new List<TimeOnly> { new TimeOnly(10, 0), new TimeOnly(11, 0) };
+            var fakeResponseDto = new GetAvailableTimesResponse(testDate, testStylistId,fakeTimesList);
+
+            _serviceMock
+                .Setup(s => s.GetAvailableTimesAsync(testDate, testStylistId))
+                .ReturnsAsync(ServiceResult<GetAvailableTimesResponse>.Ok(fakeResponseDto));
+
+            var actionResult = await _controller.GetAvailableTimes(testDate, testStylistId);
+
+            Assert.IsInstanceOfType(actionResult, typeof(OkObjectResult));
+        }
+
+        [TestMethod]
+        public async Task GetAvailableTimes_StylistNotWorking_ReturnsBadRequest()
+        {
+            var testDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+            int nonExistingStylistId = 999;
+
+            _serviceMock
+                .Setup(s => s.GetAvailableTimesAsync(testDate, nonExistingStylistId))
+                .ReturnsAsync(new ServiceResult<GetAvailableTimesResponse>(ServiceResultStatus.NotFound));
+
+            var actionResult = await _controller.GetAvailableTimes(testDate, nonExistingStylistId);
+
+            Assert.IsInstanceOfType(actionResult, typeof(BadRequestResult));
+        }
     }
 }
