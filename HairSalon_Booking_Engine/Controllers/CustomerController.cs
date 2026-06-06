@@ -43,7 +43,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return Ok(customer);
         }
 
-        [HttpPost(Name = "CreateCustomer")]
+        [HttpPost("create", Name = "CreateCustomer")]
         public async Task<ActionResult> Create(CreateCustomerRequest request)
         {
             var validationResult = await _createCustomerValidator.ValidateAsync(request);
@@ -69,7 +69,7 @@ namespace HairSalon_Booking_Engine.Controllers
         }
 
         // Validation behöver finnas för update requests också, inte bara create
-        [HttpPut("{id}", Name = "UpdateCustomer")]
+        [HttpPut("{id}/update", Name = "UpdateCustomer")]
         public async Task<ActionResult> Update(int id, UpdateCustomerRequest request)
         {
             var validationResult = await _updateCustomerValidator.ValidateAsync(request);
@@ -94,7 +94,7 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}", Name = "DeleteCustomerById")]
+        [HttpDelete("{id}/delete", Name = "DeleteCustomerById")]
         public async Task<IActionResult> DeleteByID(int id)
         {
             var result = await _customerService.DeleteAsync(id);
@@ -107,15 +107,15 @@ namespace HairSalon_Booking_Engine.Controllers
             return NoContent();
         }
 
-        [HttpGet("customer/{customerId}")]
-        public async Task<ActionResult<IEnumerable<GetCustomerBookingHistoryResponse>>> GetCustomerBookingHistory(int customerId)
+        [HttpGet("{id}/booking-history")]
+        public async Task<ActionResult<IEnumerable<GetCustomerBookingHistoryResponse>>> GetCustomerBookingHistory(int id)
         {
-            if (customerId <= 0)
+            if (id < 1)
             {
                 return BadRequest("Invalid Customer ID.");
             }
 
-            var history = await _customerService.GetCustomerBookingHistoryByIdAsync(customerId);
+            var history = await _customerService.GetCustomerBookingHistoryByIdAsync(id);
 
             return Ok(history);
         }
