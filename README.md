@@ -169,3 +169,90 @@ dotnet test
 ```
 
 Each test method creates its own isolated in-memory database (named after the test method) to prevent state leakage between tests. The `TestDataBuilder` helper class provides factory methods for all entity and DTO types.
+
+---
+
+# Teststrategi
+
+## Syfte
+
+Syftet med testningen är att säkerställa att systemet kommer fungerar korrekt och hanterar fel på ett säkert sätt och uppfyller projektets krav.
+
+Testningen fokuserar på:
+
+* Funktionalitet
+* Valideringar
+* API-responser
+* Felhantering
+
+---
+
+## Testområden
+
+* Controllers
+* Services
+* Valideringar
+
+---
+
+## Typer av tester
+
+### Enhetstester (Unit Tests)
+
+Enhetstester används för att testa enskilda komponenter isolerat.
+
+Tester verifierar bland annat att:
+
+* Metoder returnerar korrekt data
+* Fel hanteras på rätt sätt
+* Valideringar fungerar enligt krav
+
+### Controller-tester
+
+Controller-tester används för att säkerställa att API-endpoints:
+
+* Returnerar rätt HTTP-statuskoder
+* Hanterar requests korrekt
+* Returnerar korrekt responsdata
+
+Exempel på testade statuskoder:
+
+* `200 OK`
+* `201 Created`
+* `400 Bad Request`
+* `404 Not Found`
+
+### Integrationstester (Postman)
+
+Integrationstester används för att säkerställa att hela API:et kommunicerar rätt med databasen i ett verkligt flöde.
+
+* Verifierar kompletta användarflöden (Skapa kund ➔ Boka tid ➔ Avboka)
+* Databaskommunikationstester
+
+---
+
+## Testmetodik
+
+### Happy Path
+
+Tester där vi simulerar en användare som gör allting rätt.
+Exempel från projektet: Kunden bokar en klippning i framtiden, en ledig frisör hämtas korrekt, eller en kund väljer att avboka sin tid (vilket framgångsrikt uppdaterar bokningens status till Cancelled).
+
+
+### Sad Path
+
+Tester där vi agerar som en "slarvig" eller illvillig användare för att se att systemets fungerar och ser dessa fel.
+Exempel från projektet: Försök att boka en tid som redan har passerat, anropa en kund som har ID 9999, skicka in en bokning som helt saknar Treatments, eller försöka radera en resurs som redan är borttagen.
+
+---
+
+## Mockning och testverktyg
+
+Följande verktyg och ramverk används i testningen:
+
+* **MSTest** (Testramverk)
+* **Moq** (Mockningsramverk)
+* **EF Core In-Memory** (Testdatabas)
+* **Postman** (Integrationstester)
+
+Moq används för mockning av beroenden (exempelvis `IBookingService`) för att kunna testa systemets Controllrar isolerat. Entity Framework In-Memory Database och vår egen `TestDataBuilder` används för att säkert kunna testa databasanrop i Service-lagret utan att påverka en riktig databas. Prestandatester har valts bort i detta skede då de klassas som en extrauppgift, och fullt fokus har lagts på kärnfunktionalitet.
