@@ -172,87 +172,90 @@ Each test method creates its own isolated in-memory database (named after the te
 
 ---
 
-# Teststrategi
+Here is the English translation of your Test Strategy document. You can drop this straight into your documentation or `README.md`!
 
-## Syfte
+***
 
-Syftet med testningen är att säkerställa att systemet kommer fungerar korrekt och hanterar fel på ett säkert sätt och uppfyller projektets krav.
+# Test Strategy
 
-Testningen fokuserar på:
+## Purpose
 
-* Funktionalitet
-* Valideringar
-* API-responser
-* Felhantering
+The purpose of the testing is to ensure that the system functions correctly, handles errors safely.
+
+Testing focuses on:
+
+* Functionality
+* Validations
+* API responses
+* Error handling
 
 ---
 
-## Testområden
+## Test Areas
 
 * Controllers
 * Services
-* Valideringar
+* Validations
 
 ---
 
-## Typer av tester
+## Types of Tests
 
-### Enhetstester (Unit Tests)
+### Unit Tests
 
-Enhetstester används för att testa enskilda komponenter isolerat.
+Unit tests are used to test individual components in isolation.
 
-Tester verifierar bland annat att:
+The tests verify, among other things, that:
 
-* Metoder returnerar korrekt data
-* Fel hanteras på rätt sätt
-* Valideringar fungerar enligt krav
+* Methods return the correct data
+* Errors are handled properly
+* Validations work according to requirements
 
-### Controller-tester
+### Controller Tests
 
-Controller-tester används för att säkerställa att API-endpoints:
+Controller tests are used to ensure that API endpoints:
 
-* Returnerar rätt HTTP-statuskoder
-* Hanterar requests korrekt
-* Returnerar korrekt responsdata
+* Return the correct HTTP status codes
+* Handle requests correctly
+* Return the correct response data
 
-Exempel på testade statuskoder:
+Examples of tested status codes:
 
 * `200 OK`
 * `201 Created`
 * `400 Bad Request`
 * `404 Not Found`
 
-### Integrationstester (Postman)
+### Integration Tests (Postman)
 
-Integrationstester används för att säkerställa att hela API:et kommunicerar rätt med databasen i ett verkligt flöde.
+Integration tests are used to ensure that the entire API communicates correctly with the database in a real-world flow.
 
-* Verifierar kompletta användarflöden (Skapa kund ➔ Boka tid ➔ Avboka)
-* Databaskommunikationstester
+* Verifies complete user flows (Create customer ➔ Book appointment ➔ Cancel appointment)
+* Database communication tests
 
 ---
 
-## Testmetodik
+## Test Methodology
 
 ### Happy Path
 
-Tester där vi simulerar en användare som gör allting rätt.
-Exempel från projektet: Kunden bokar en klippning i framtiden, en ledig frisör hämtas korrekt, eller en kund väljer att avboka sin tid (vilket framgångsrikt uppdaterar bokningens status till Cancelled).
-
+Tests where we simulate a user doing everything correctly. 
+*Examples from the project:* The customer books a haircut in the future, an available stylist is fetched correctly, or a customer chooses to cancel their appointment (which successfully updates the booking status to `Cancelled`).
 
 ### Sad Path
 
-Tester där vi agerar som en "slarvig" eller illvillig användare för att se att systemets fungerar och ser dessa fel.
-Exempel från projektet: Försök att boka en tid som redan har passerat, anropa en kund som har ID 9999, skicka in en bokning som helt saknar Treatments, eller försöka radera en resurs som redan är borttagen.
+Tests where we act as a "careless" or malicious user to ensure that the system functions securely and catches these errors. 
+*Examples from the project:* Attempting to book a time that has already passed, requesting a customer with ID 9999, submitting a booking that completely lacks Treatments, or attempting to delete a resource that has already been removed.
 
 ---
 
-## Mockning och testverktyg
+## Mocking and Test Tools
 
-Följande verktyg och ramverk används i testningen:
+The following tools and frameworks are used in testing:
 
-* **MSTest** (Testramverk)
-* **Moq** (Mockningsramverk)
-* **EF Core In-Memory** (Testdatabas)
-* **Postman** (Integrationstester)
+* **MSTest** (Testing framework)
+* **Moq** (Mocking framework)
+* **EF Core In-Memory** (Test database)
+* **Postman** (Integration tests)
 
-Moq används för mockning av beroenden (exempelvis `IBookingService`) för att kunna testa systemets Controllrar isolerat. Entity Framework In-Memory Database och vår egen `TestDataBuilder` används för att säkert kunna testa databasanrop i Service-lagret utan att påverka en riktig databas. Prestandatester har valts bort i detta skede då de klassas som en extrauppgift, och fullt fokus har lagts på kärnfunktionalitet.
+Moq is used for mocking dependencies (such as `IBookingService`) to be able to test the system's Controllers in isolation. Entity Framework In-Memory Database and our custom `TestDataBuilder` are used to safely test database calls in the Service layer without affecting a real database. Performance tests have been omitted at this stage as they are classified as an extra assignment, allowing us to place full focus on the quality of the core functionality.
