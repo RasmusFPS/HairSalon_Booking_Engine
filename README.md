@@ -172,8 +172,6 @@ Each test method creates its own isolated in-memory database (named after the te
 
 ---
 
-Here is the English translation of your Test Strategy document. You can drop this straight into your documentation or `README.md`!
-
 ***
 
 # Test Strategy
